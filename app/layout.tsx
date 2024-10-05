@@ -11,6 +11,9 @@ export const metadata: Metadata = {
   title: "MediCal",
   description:
     "SaaS solution for appointment booking, patient and doctor management.",
+  icons: {
+    icon: "/favicon.png",
+  },
 };
 
 export default function RootLayout({
