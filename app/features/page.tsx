@@ -71,10 +71,10 @@ const Features = () => {
                 <div className="mt-8 md:mt-0">
                   <Image
                     src="/placeholder.svg?height=400&width=600"
-                    width={600}
+                    width={375}
                     height={400}
                     alt="Appointment Scheduling Interface"
-                    className="rounded-lg shadow-xl"
+                    className="rounded-lg shadow-xl md:w-[600px]"
                   />
                 </div>
               </div>
@@ -87,10 +87,10 @@ const Features = () => {
                 <div className="order-2 md:order-1">
                   <Image
                     src="/placeholder.svg?height=400&width=600"
-                    width={600}
+                    width={375}
                     height={400}
                     alt="Patient Management Dashboard"
-                    className="rounded-lg shadow-xl"
+                    className="rounded-lg shadow-xl md:w-[600px]"
                   />
                 </div>
                 <div className="order-1 md:order-2">

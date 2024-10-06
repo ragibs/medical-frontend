@@ -49,16 +49,16 @@ const Header = () => {
       {isMenuOpen && (
         <div className="md:hidden absolute top-20 left-0 right-0 bg-stone-100 shadow-md z-40">
           <nav className="flex flex-col items-center py-4">
-            <Link href="#" className="py-2 hover:text-emerald-700">
+            <Link href="/" className="py-2 hover:text-emerald-700">
               Home
             </Link>
-            <Link href="#" className="py-2 hover:text-emerald-700">
+            <Link href="/features" className="py-2 hover:text-emerald-700">
               Features
             </Link>
-            <Link href="#" className="py-2 hover:text-emerald-700">
+            <Link href="/pricing" className="py-2 hover:text-emerald-700">
               Pricing
             </Link>
-            <Link href="#" className="py-2 hover:text-emerald-700">
+            <Link href="/testimonials" className="py-2 hover:text-emerald-700">
               Testimonials
             </Link>
             <Button className="mt-4 bg-emerald-700 text-white hover:bg-emerald-800">
