@@ -17,7 +17,7 @@ const Footer = () => {
             <Link href="#" className="hover:text-emerald-700">
               Terms of Service
             </Link>
-            <Link href="#" className="hover:text-emerald-700">
+            <Link href="/contactus" className="hover:text-emerald-700">
               Contact Us
             </Link>
           </nav>
