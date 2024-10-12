@@ -1,8 +1,8 @@
 "use client";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import Link from "next/link";
-import Login from "@/components/Login";
-import Register from "@/components/Register";
+import Login from "@/app/auth/Login";
+import Register from "@/app/auth/Register";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Image from "next/image";
