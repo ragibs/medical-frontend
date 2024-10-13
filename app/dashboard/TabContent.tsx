@@ -18,18 +18,59 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowUpDown, Search } from "lucide-react";
 
-export function TabContent({ tab, data }) {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [sortConfig, setSortConfig] = useState({ key: "", direction: "" });
+// Define the types for each dataset
+interface AppointmentData {
+  id: number;
+  patient: string;
+  doctor: string;
+  date: string;
+  time: string;
+}
 
+interface PatientData {
+  id: number;
+  name: string;
+  age: number;
+  contact: string;
+  email: string;
+}
+
+interface DoctorData {
+  id: number;
+  name: string;
+  specialization: string;
+  contact: string;
+}
+
+// Union type to account for all possible data types
+type TabData = AppointmentData | PatientData | DoctorData;
+
+interface TabContentProps {
+  tab: string;
+  data: TabData[];
+}
+
+const TabContent: React.FC<TabContentProps> = ({ tab, data }) => {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [sortConfig, setSortConfig] = useState<{
+    key: string;
+    direction: string;
+  }>({
+    key: "",
+    direction: "",
+  });
+
+  // Sorting logic
   const sortedData = useMemo(() => {
     let sortableItems = [...data];
     if (sortConfig.key) {
       sortableItems.sort((a, b) => {
-        if (a[sortConfig.key] < b[sortConfig.key]) {
+        const aKey = a[sortConfig.key as keyof TabData];
+        const bKey = b[sortConfig.key as keyof TabData];
+        if (aKey < bKey) {
           return sortConfig.direction === "ascending" ? -1 : 1;
         }
-        if (a[sortConfig.key] > b[sortConfig.key]) {
+        if (aKey > bKey) {
           return sortConfig.direction === "ascending" ? 1 : -1;
         }
         return 0;
@@ -38,6 +79,7 @@ export function TabContent({ tab, data }) {
     return sortableItems;
   }, [data, sortConfig]);
 
+  // Filtering logic
   const filteredData = useMemo(() => {
     return sortedData.filter((item) =>
       Object.values(item).some((value) =>
@@ -46,12 +88,35 @@ export function TabContent({ tab, data }) {
     );
   }, [sortedData, searchTerm]);
 
-  const requestSort = (key) => {
+  const requestSort = (key: string) => {
     let direction = "ascending";
     if (sortConfig.key === key && sortConfig.direction === "ascending") {
       direction = "descending";
     }
     setSortConfig({ key, direction });
+  };
+
+  // Dynamically render table headers and cells based on the tab content
+  const renderTableHeaders = () => {
+    if (data.length === 0) return null;
+    return Object.keys(data[0])
+      .filter((key) => key !== "id")
+      .map((key) => (
+        <TableHead
+          key={key}
+          className="cursor-pointer text-sacramento"
+          onClick={() => requestSort(key)}
+        >
+          {key.charAt(0).toUpperCase() + key.slice(1)}
+          <ArrowUpDown className="ml-2 h-4 w-4 inline" />
+        </TableHead>
+      ));
+  };
+
+  const renderTableCells = (item: TabData) => {
+    return Object.entries(item)
+      .filter(([key]) => key !== "id")
+      .map(([key, value]) => <TableCell key={key}>{value}</TableCell>);
   };
 
   return (
@@ -80,29 +145,14 @@ export function TabContent({ tab, data }) {
         <Table>
           <TableHeader>
             <TableRow>
-              {Object.keys(data[0])
-                .filter((key) => key !== "id")
-                .map((key) => (
-                  <TableHead
-                    key={key}
-                    className="cursor-pointer text-sacramento"
-                    onClick={() => requestSort(key)}
-                  >
-                    {key.charAt(0).toUpperCase() + key.slice(1)}
-                    <ArrowUpDown className="ml-2 h-4 w-4 inline" />
-                  </TableHead>
-                ))}
+              {renderTableHeaders()}
               <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {filteredData.map((item) => (
               <TableRow key={item.id}>
-                {Object.entries(item)
-                  .filter(([key]) => key !== "id")
-                  .map(([key, value]) => (
-                    <TableCell key={key}>{value}</TableCell>
-                  ))}
+                {renderTableCells(item)}
                 <TableCell>
                   <Button
                     variant="outline"
@@ -119,4 +169,6 @@ export function TabContent({ tab, data }) {
       </CardContent>
     </Card>
   );
-}
+};
+
+export default TabContent;

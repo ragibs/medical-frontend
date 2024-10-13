@@ -1,11 +1,11 @@
 "use client";
 import React, { useState } from "react";
-import { Sidebar } from "./Sidebar";
+import Sidebar from "./Sidebar";
 import Header from "./DashHeader";
 import { SummaryCards } from "./SummaryCards";
 import { Charts } from "./Charts";
-import { RecentActivity } from "./RecentActivity";
-import { TabContent } from "./TabContent";
+import RecentActivity from "./RecentActivity";
+import TabContent from "./TabContent";
 import AIAssistantButton from "./AIAssistantButton";
 import { AIAssistant } from "./AIAssistant";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -82,9 +82,9 @@ const doctors = [
 ];
 
 export default function Dashboard() {
-  const [activeTab, setActiveTab] = useState("dashboard");
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [aiAssistantOpen, setAiAssistantOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<string>("dashboard");
+  const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
+  const [aiAssistantOpen, setAiAssistantOpen] = useState<boolean>(false);
 
   const toggleAiAssistant = () => {
     setAiAssistantOpen(!aiAssistantOpen);

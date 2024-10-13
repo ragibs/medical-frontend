@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { PlusCircle, Bell, Menu } from "lucide-react";
-import React, { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction } from "react";
 
 interface HeaderProps {
   setSidebarOpen: Dispatch<SetStateAction<boolean>>;

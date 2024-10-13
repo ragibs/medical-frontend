@@ -1,4 +1,4 @@
-import React from "react";
+import { Dispatch, SetStateAction } from "react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -10,7 +10,17 @@ import {
   LogOut,
 } from "lucide-react";
 
-export function Sidebar({ activeTab, setActiveTab, sidebarOpen }) {
+interface SidebarProps {
+  activeTab: string;
+  setActiveTab: Dispatch<SetStateAction<string>>;
+  sidebarOpen: boolean;
+}
+
+const Sidebar: React.FC<SidebarProps> = ({
+  activeTab,
+  setActiveTab,
+  sidebarOpen,
+}) => {
   return (
     <aside
       className={`${
@@ -75,4 +85,6 @@ export function Sidebar({ activeTab, setActiveTab, sidebarOpen }) {
       </div>
     </aside>
   );
-}
+};
+
+export default Sidebar;
