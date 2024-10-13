@@ -7,8 +7,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import {
   Calendar as CalendarIcon,
-  Clock,
-  User,
   Send,
   Loader2,
   Brain,
@@ -67,7 +65,7 @@ const appointmentTimes = [
   "17:00",
 ];
 
-const Book = () => {
+export default function BookAppointment() {
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -132,7 +130,7 @@ const Book = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-teal-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-chiffon to-salmon flex items-center justify-center p-4">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -143,13 +141,13 @@ const Book = () => {
           onClick={handleBack}
           variant="ghost"
           size="icon"
-          className="absolute top-2 right-2 sm:top-4 sm:right-4 text-gray-500 hover:text-gray-700"
+          className="absolute top-2 right-2 sm:top-4 sm:right-4 text-sacramento hover:text-pine"
         >
           <X className="h-4 w-4 sm:h-6 sm:w-6" />
         </Button>
         <div className="flex items-center mb-6 pr-8 sm:pr-0">
-          <CalendarIcon className="h-6 w-6 sm:h-8 sm:w-8 text-emerald-600 mr-2 sm:mr-3 flex-shrink-0" />
-          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">
+          <CalendarIcon className="h-6 w-6 sm:h-8 sm:w-8 text-tangerine mr-2 sm:mr-3 flex-shrink-0" />
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-sacramento">
             Book an Appointment
           </h1>
         </div>
@@ -158,7 +156,7 @@ const Book = () => {
             <div className="space-y-2">
               <Label
                 htmlFor="firstName"
-                className="text-sm font-medium text-gray-700"
+                className="text-sm font-medium text-sacramento"
               >
                 First Name
               </Label>
@@ -168,14 +166,14 @@ const Book = () => {
                 value={formData.firstName}
                 onChange={handleChange}
                 required
-                className="w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500"
+                className="w-full rounded-md border-pine focus:border-tangerine focus:ring-tangerine"
                 placeholder="John"
               />
             </div>
             <div className="space-y-2">
               <Label
                 htmlFor="lastName"
-                className="text-sm font-medium text-gray-700"
+                className="text-sm font-medium text-sacramento"
               >
                 Last Name
               </Label>
@@ -185,13 +183,16 @@ const Book = () => {
                 value={formData.lastName}
                 onChange={handleChange}
                 required
-                className="w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500"
+                className="w-full rounded-md border-pine focus:border-tangerine focus:ring-tangerine"
                 placeholder="Doe"
               />
             </div>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="dob" className="text-sm font-medium text-gray-700">
+            <Label
+              htmlFor="dob"
+              className="text-sm font-medium text-sacramento"
+            >
               Date of Birth
             </Label>
             <Popover>
@@ -228,12 +229,12 @@ const Book = () => {
             <div className="space-y-2">
               <Label
                 htmlFor="phone"
-                className="text-sm font-medium text-gray-700"
+                className="text-sm font-medium text-sacramento"
               >
                 Phone Number
               </Label>
               <div className="flex">
-                <Phone className="h-5 w-5 text-gray-400 mr-2 self-center" />
+                <Phone className="h-5 w-5 text-pine mr-2 self-center" />
                 <Input
                   id="phone"
                   name="phone"
@@ -241,7 +242,7 @@ const Book = () => {
                   value={formData.phone}
                   onChange={handleChange}
                   required
-                  className="w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500"
+                  className="w-full rounded-md border-pine focus:border-tangerine focus:ring-tangerine"
                   placeholder="(123) 456-7890"
                 />
               </div>
@@ -249,12 +250,12 @@ const Book = () => {
             <div className="space-y-2">
               <Label
                 htmlFor="email"
-                className="text-sm font-medium text-gray-700"
+                className="text-sm font-medium text-sacramento"
               >
                 Email
               </Label>
               <div className="flex">
-                <Mail className="h-5 w-5 text-gray-400 mr-2 self-center" />
+                <Mail className="h-5 w-5 text-pine mr-2 self-center" />
                 <Input
                   id="email"
                   name="email"
@@ -262,7 +263,7 @@ const Book = () => {
                   value={formData.email}
                   onChange={handleChange}
                   required
-                  className="w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500"
+                  className="w-full rounded-md border-pine focus:border-tangerine focus:ring-tangerine"
                   placeholder="john@example.com"
                 />
               </div>
@@ -271,7 +272,7 @@ const Book = () => {
           <div className="space-y-2">
             <Label
               htmlFor="symptoms"
-              className="text-sm font-medium text-gray-700"
+              className="text-sm font-medium text-sacramento"
             >
               Symptoms
             </Label>
@@ -280,13 +281,13 @@ const Book = () => {
               name="symptoms"
               value={formData.symptoms}
               onChange={handleChange}
-              className="w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 min-h-[100px]"
+              className="w-full rounded-md border-pine focus:border-tangerine focus:ring-tangerine min-h-[100px]"
               placeholder="Describe your symptoms..."
             />
             <Button
               type="button"
               onClick={handleAISummarize}
-              className="w-full sm:w-auto mt-2 bg-emerald-600 hover:bg-emerald-700 text-white"
+              className="w-full sm:w-auto mt-2 bg-tangerine hover:bg-pine text-white"
             >
               <Brain className="mr-2 h-4 w-4" />
               Summarize
@@ -295,7 +296,7 @@ const Book = () => {
           <div className="space-y-2">
             <Label
               htmlFor="doctor"
-              className="text-sm font-medium text-gray-700"
+              className="text-sm font-medium text-sacramento"
             >
               Choose a Doctor
             </Label>
@@ -319,7 +320,7 @@ const Book = () => {
                           <div className="font-medium truncate">
                             {doctor.name}
                           </div>
-                          <div className="text-sm text-gray-500 truncate">
+                          <div className="text-sm text-pine truncate">
                             {doctor.description}
                           </div>
                         </div>
@@ -331,7 +332,7 @@ const Book = () => {
               <Button
                 type="button"
                 onClick={handleAIRecommendation}
-                className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white"
+                className="w-full sm:w-auto bg-tangerine hover:bg-pine text-white"
               >
                 <Brain className="mr-2 h-4 w-4" />
                 Recommend
@@ -342,7 +343,7 @@ const Book = () => {
             <div className="space-y-2">
               <Label
                 htmlFor="appointmentDate"
-                className="text-sm font-medium text-gray-700"
+                className="text-sm font-medium text-sacramento"
               >
                 Appointment Date
               </Label>
@@ -378,7 +379,7 @@ const Book = () => {
             <div className="space-y-2">
               <Label
                 htmlFor="appointmentTime"
-                className="text-sm font-medium text-gray-700"
+                className="text-sm font-medium text-sacramento"
               >
                 Appointment Time
               </Label>
@@ -403,7 +404,7 @@ const Book = () => {
           <div className="flex flex-col sm:flex-row gap-4">
             <Button
               type="submit"
-              className="w-full sm:w-1/2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 rounded-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-opacity-50"
+              className="w-full sm:w-1/2 bg-tangerine hover:bg-pine text-white font-semibold py-3 rounded-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-pine focus:ring-opacity-50"
               disabled={isSubmitting}
             >
               {isSubmitting ? (
@@ -421,7 +422,7 @@ const Book = () => {
             <Button
               type="button"
               onClick={handleCancel}
-              className="w-full sm:w-1/2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-3 rounded-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50"
+              className="w-full sm:w-1/2 bg-chiffon hover:bg-salmon text-sacramento font-semibold py-3 rounded-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none  focus:ring-2 focus:ring-salmon focus:ring-opacity-50"
             >
               Cancel
             </Button>
@@ -430,6 +431,4 @@ const Book = () => {
       </motion.div>
     </div>
   );
-};
-
-export default Book;
+}
