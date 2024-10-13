@@ -19,7 +19,7 @@ export function Sidebar({ activeTab, setActiveTab, sidebarOpen }) {
     >
       <div className="flex flex-col h-full">
         <div className="p-6">
-          <h2 className="text-2xl font-bold mb-6">MediDash</h2>
+          <h2 className="text-2xl font-bold mb-6">MediCal</h2>
           <nav className="space-y-4">
             {[
               "dashboard",

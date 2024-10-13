@@ -1,12 +1,12 @@
 "use client";
 import React, { useState } from "react";
 import { Sidebar } from "./Sidebar";
-import { Header } from "./DashHeader";
+import Header from "./DashHeader";
 import { SummaryCards } from "./SummaryCards";
 import { Charts } from "./Charts";
 import { RecentActivity } from "./RecentActivity";
 import { TabContent } from "./TabContent";
-import { AIAssistantButton } from "./AIAssistantButton";
+import AIAssistantButton from "./AIAssistantButton";
 import { AIAssistant } from "./AIAssistant";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { motion, AnimatePresence } from "framer-motion";

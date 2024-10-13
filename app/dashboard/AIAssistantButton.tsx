@@ -1,7 +1,15 @@
 import { Button } from "@/components/ui/button";
 import { BotMessageSquare, X } from "lucide-react";
 
-export function AIAssistantButton({ toggleAiAssistant, isOpen }) {
+interface AIAssistantButtonProps {
+  toggleAiAssistant: () => void;
+  isOpen: boolean;
+}
+
+const AIAssistantButton: React.FC<AIAssistantButtonProps> = ({
+  toggleAiAssistant,
+  isOpen,
+}) => {
   return (
     <Button
       className="fixed bottom-4 right-4 rounded-full w-14 h-14 shadow-lg bg-tangerine hover:bg-salmon text-chiffon"
@@ -15,4 +23,6 @@ export function AIAssistantButton({ toggleAiAssistant, isOpen }) {
       <span className="sr-only">AI Assistant</span>
     </Button>
   );
-}
+};
+
+export default AIAssistantButton;

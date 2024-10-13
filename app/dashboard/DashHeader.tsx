@@ -1,8 +1,14 @@
-import React from "react";
+"use client";
+
 import { Button } from "@/components/ui/button";
 import { PlusCircle, Bell, Menu } from "lucide-react";
+import React, { Dispatch, SetStateAction } from "react";
 
-export function Header({ setSidebarOpen }) {
+interface HeaderProps {
+  setSidebarOpen: Dispatch<SetStateAction<boolean>>;
+}
+
+const Header: React.FC<HeaderProps> = ({ setSidebarOpen }) => {
   return (
     <header className="flex justify-between items-center mb-6">
       <div>
@@ -28,4 +34,6 @@ export function Header({ setSidebarOpen }) {
       </div>
     </header>
   );
-}
+};
+
+export default Header;
