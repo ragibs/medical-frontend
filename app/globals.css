@@ -3,5 +3,5 @@
 @tailwind utilities;
 
 .default-bg {
-  @apply bg-stone-100;
+  @apply bg-chiffon;
 }

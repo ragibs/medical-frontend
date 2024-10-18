@@ -14,14 +14,14 @@ import Link from "next/link";
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-stone-100 text-gray-900 flex flex-col">
+    <div className="min-h-screen bg-chiffon text-gray-900 flex flex-col">
       <Header />
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <main className="flex-grow">
+        <main className="flex-grow bg-chiffon">
           <section className="container mx-auto px-4 py-20 flex flex-col md:flex-row items-center">
             <div className="md:w-1/2 mb-10 md:mb-0">
               <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
@@ -33,14 +33,14 @@ export default function LandingPage() {
                 services with our state-of-the-art platform.
               </p>
               <div className="flex space-x-4">
-                <Button className="bg-emerald-700 text-white hover:bg-emerald-800">
+                <Button className="bg-tangerine text-white hover:bg-salmon">
                   <span className="md:hidden">Try Now</span>
                   <span className="hidden md:inline">Get Started</span>
                 </Button>
                 <Link href="/contactus">
                   <Button
                     variant="outline"
-                    className="text-emerald-700 border-emerald-700 hover:bg-emerald-700 hover:text-white"
+                    className="text-tangerine border-tangerine hover:bg-salmon hover:text-white"
                   >
                     Learn More
                   </Button>
@@ -58,7 +58,7 @@ export default function LandingPage() {
             </div>
           </section>
 
-          <section className="bg-gray-100 py-20">
+          <section className="bg-chiffon py-20">
             <div className="container mx-auto px-4">
               <h2 className="text-4xl font-bold mb-12 text-center">
                 Innovative Features You'll Love
@@ -113,7 +113,7 @@ export default function LandingPage() {
               </div>
             </div>
           </section>
-          <section className="bg-gray-100 py-20">
+          <section className="bg-chiffon py-20">
             <div className="container mx-auto px-4">
               <h2 className="text-4xl font-bold mb-12 text-center">
                 Simple Pricing
@@ -153,7 +153,7 @@ export default function LandingPage() {
             </div>
           </section>
 
-          <section className="py-20 bg-gradient-to-b from-white to-gray-100">
+          <section className="py-20 bg-gradient-to-b from-chiffon to-gray-100">
             <div className="container mx-auto px-4">
               <h2 className="text-4xl font-bold mb-12 text-center">
                 Contact Us
