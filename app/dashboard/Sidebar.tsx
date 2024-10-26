@@ -1,5 +1,6 @@
 import { Dispatch, SetStateAction } from "react";
 import { Button } from "@/components/ui/button";
+import logo from "@/public/images/logo.png";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Calendar,
@@ -9,6 +10,7 @@ import {
   BotMessageSquare,
   LogOut,
 } from "lucide-react";
+import Image from "next/image";
 
 interface SidebarProps {
   activeTab: string;
@@ -29,7 +31,12 @@ const Sidebar: React.FC<SidebarProps> = ({
     >
       <div className="flex flex-col h-full">
         <div className="p-6">
-          <h2 className="text-2xl font-bold mb-6">MediCal</h2>
+          <Image
+            src={logo}
+            width={60}
+            alt={"Logo of medical"}
+            className="mb-5"
+          />
           <nav className="space-y-4">
             {[
               "dashboard",

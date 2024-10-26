@@ -16,7 +16,7 @@ const Header = () => {
     <>
       <header className="container mx-auto px-4 py-6 flex items-center justify-between relative z-50 bg-chiffon">
         <div className="flex items-center space-x-2">
-          <Image src={logo} width={120} alt={"Logo of medical"} />
+          <Image src={logo} width={60} alt={"Logo of medical"} />
         </div>
         <nav className="hidden md:flex space-x-8">
           <Link href="/" className="hover:text-tangerine">

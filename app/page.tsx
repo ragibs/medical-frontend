@@ -65,17 +65,17 @@ export default function LandingPage() {
               </h2>
               <div className="grid md:grid-cols-3 gap-8">
                 <FeatureCard
-                  icon={<Calendar className="h-12 w-12 text-emerald-700" />}
+                  icon={<Calendar className="h-12 w-12 text-tangerine" />}
                   title="Easy Scheduling"
                   description="Effortlessly manage appointments with our intuitive booking system."
                 />
                 <FeatureCard
-                  icon={<Users className="h-12 w-12 text-emerald-700" />}
+                  icon={<Users className="h-12 w-12 text-tangerine" />}
                   title="Patient Management"
                   description="Keep track of patient records, history, and preferences in one place."
                 />
                 <FeatureCard
-                  icon={<Clock className="h-12 w-12 text-emerald-700" />}
+                  icon={<Clock className="h-12 w-12 text-tangerine" />}
                   title="Time-Saving Automation"
                   description="Automate reminders, follow-ups, and routine tasks to save time."
                 />
@@ -214,7 +214,7 @@ export default function LandingPage() {
                     </div>
                     <Button
                       type="submit"
-                      className="w-full bg-emerald-700 text-white hover:bg-emerald-800 rounded-md"
+                      className="w-full bg-tangerine text-white hover:bg-salmon rounded-md"
                     >
                       <Send className="w-4 h-4 mr-2" />
                       Send Message

@@ -18,7 +18,7 @@ const PricingCard: React.FC<PricingCardProps> = ({
   return (
     <div
       className={`bg-white p-6 rounded-lg shadow-md ${
-        highlighted ? "ring-2 ring-emerald-500" : ""
+        highlighted ? "ring-2 ring-salmon" : ""
       }`}
     >
       <h3 className="text-2xl font-bold mb-2">{title}</h3>
@@ -29,7 +29,7 @@ const PricingCard: React.FC<PricingCardProps> = ({
       <ul className="mb-6">
         {features.map((feature, index) => (
           <li key={index} className="flex items-center mb-2">
-            <Calendar className="h-5 w-5 text-emerald-500 mr-2" />
+            <Calendar className="h-5 w-5 text-tangerine mr-2" />
             <span>{feature}</span>
           </li>
         ))}
@@ -38,7 +38,7 @@ const PricingCard: React.FC<PricingCardProps> = ({
         <Button
           className={`w-full ${
             highlighted
-              ? "bg-emerald-500 hover:bg-emerald-600"
+              ? "bg-tangerine hover:bg-salmon"
               : "bg-gray-200 hover:bg-gray-300 text-gray-800"
           }`}
         >
