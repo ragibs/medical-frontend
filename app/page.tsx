@@ -121,32 +121,33 @@ export default function LandingPage() {
               <div className="grid md:grid-cols-3 gap-8">
                 <PricingCard
                   title="Basic"
-                  price="$49"
+                  price="$9"
                   features={[
-                    "Up to 100 appointments/month",
-                    "Basic patient management",
-                    "Email support",
+                    "1 User",
+                    "Online Support",
+                    "1000 Monthly Requests",
+                    "1 GB Data Package",
                   ]}
                 />
                 <PricingCard
-                  title="Pro"
-                  price="$99"
+                  title="Advanced"
+                  price="$29"
                   features={[
-                    "Unlimited appointments",
-                    "Advanced patient management",
-                    "Priority support",
-                    "Custom branding",
+                    "Up to 5 Users",
+                    "Priority Suppor",
+                    "5000 Monthly Requests",
+                    "5 GB Data Package",
                   ]}
                   highlighted={true}
                 />
                 <PricingCard
-                  title="Enterprise"
-                  price="Custom"
+                  title="Premium"
+                  price="$59"
                   features={[
-                    "All Pro features",
-                    "Dedicated account manager",
-                    "Custom integrations",
-                    "On-premise deployment option",
+                    "Unlimited Users",
+                    "Premium Support",
+                    "Unlimited Monthly Requests",
+                    "10 GB Data Package",
                   ]}
                 />
               </div>

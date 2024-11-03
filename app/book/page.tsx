@@ -305,7 +305,7 @@ export default function BookAppointment() {
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select a doctor" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-chiffon">
                   {doctors.map((doctor) => (
                     <SelectItem key={doctor.id} value={doctor.id}>
                       <div className="flex items-center">
@@ -391,7 +391,7 @@ export default function BookAppointment() {
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select a time" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-chiffon">
                   {appointmentTimes.map((time) => (
                     <SelectItem key={time} value={time}>
                       {time}

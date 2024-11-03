@@ -66,7 +66,7 @@ const Testimonials = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <div className="bg-gray-100 min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+        <div className="bg-gradient-to-b from-chiffon to-gray-100 min-h-screen py-12 px-4 sm:px-6 lg:px-8">
           <div className="max-w-7xl mx-auto">
             <h1 className="text-4xl font-bold text-center mb-8 text-gray-900">
               What Our Users Say

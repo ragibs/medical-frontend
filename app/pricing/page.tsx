@@ -15,7 +15,7 @@ const Pricing = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <div className="bg-gray-100 min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+        <div className="bg-gradient-to-b from-chiffon to-gray-100 min-h-screen py-12 px-4 sm:px-6 lg:px-8">
           <div className="max-w-7xl mx-auto">
             <h1 className="text-4xl font-bold text-center mb-8 text-gray-900">
               Choose your favorite plan
@@ -85,7 +85,7 @@ const Pricing = () => {
                       </span>
                     </p>
                     <Link href="/contactus">
-                      <Button className="mt-6 w-full bg-emerald-600 hover:bg-emerald-700">
+                      <Button className="mt-6 w-full bg-tangerine hover:bg-salmon">
                         Select {tier.name}
                       </Button>
                     </Link>
@@ -98,7 +98,7 @@ const Pricing = () => {
                       {tier.features.map((feature) => (
                         <li key={feature} className="flex items-start">
                           <div className="flex-shrink-0">
-                            <Check className="h-5 w-5 text-green-500" />
+                            <Check className="h-5 w-5 text-pine" />
                           </div>
                           <p className="ml-3 text-sm text-gray-700">
                             {feature}

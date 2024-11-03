@@ -3,16 +3,7 @@
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import { Button } from "@/components/ui/button";
-import {
-  Calendar,
-  Users,
-  Clock,
-  Bell,
-  BarChart,
-  Shield,
-  Menu,
-  X,
-} from "lucide-react";
+import { Calendar, Users, Clock, Bell, BarChart, Shield } from "lucide-react";
 import Image from "next/image";
 import FeatureCard from "@/components/FeatureCard";
 import FeatureListItem from "@/components/FeatureListItem";
@@ -29,7 +20,7 @@ const Features = () => {
         transition={{ duration: 0.5 }}
       >
         <main className="flex-grow">
-          <section className="bg-emerald-50 py-20">
+          <section className="bg-gray-50 py-20">
             <div className="container mx-auto px-4">
               <h1 className="text-4xl md:text-5xl font-bold mb-8 text-center">
                 Powerful Features for Modern Healthcare
@@ -55,22 +46,22 @@ const Features = () => {
                   </p>
                   <ul className="space-y-4">
                     <FeatureListItem
-                      icon={<Calendar className="h-6 w-6 text-emerald-700" />}
+                      icon={<Calendar className="h-6 w-6 text-tangerine" />}
                       text="Smart conflict detection"
                     />
                     <FeatureListItem
-                      icon={<Users className="h-6 w-6 text-emerald-700" />}
+                      icon={<Users className="h-6 w-6 text-tangerine" />}
                       text="Multi-provider support"
                     />
                     <FeatureListItem
-                      icon={<Bell className="h-6 w-6 text-emerald-700" />}
+                      icon={<Bell className="h-6 w-6 text-tangerine" />}
                       text="Automated reminders"
                     />
                   </ul>
                 </div>
                 <div className="mt-8 md:mt-0">
                   <Image
-                    src="/placeholder.svg?height=400&width=600"
+                    src="/images/sc_booking.png"
                     width={375}
                     height={400}
                     alt="Appointment Scheduling Interface"
@@ -86,7 +77,7 @@ const Features = () => {
               <div className="grid md:grid-cols-2 gap-12 items-center">
                 <div className="order-2 md:order-1">
                   <Image
-                    src="/placeholder.svg?height=400&width=600"
+                    src="/images/sc_dashboard.png"
                     width={375}
                     height={400}
                     alt="Patient Management Dashboard"
@@ -103,15 +94,15 @@ const Features = () => {
                   </p>
                   <ul className="space-y-4">
                     <FeatureListItem
-                      icon={<BarChart className="h-6 w-6 text-emerald-700" />}
+                      icon={<BarChart className="h-6 w-6 text-tangerine" />}
                       text="Detailed patient history"
                     />
                     <FeatureListItem
-                      icon={<Shield className="h-6 w-6 text-emerald-700" />}
+                      icon={<Shield className="h-6 w-6 text-tangerine" />}
                       text="Secure data storage"
                     />
                     <FeatureListItem
-                      icon={<Clock className="h-6 w-6 text-emerald-700" />}
+                      icon={<Clock className="h-6 w-6 text-tangerine" />}
                       text="Quick access to records"
                     />
                   </ul>
@@ -127,17 +118,17 @@ const Features = () => {
               </h2>
               <div className="grid md:grid-cols-3 gap-8">
                 <FeatureCard
-                  icon={<Bell className="h-12 w-12 text-emerald-700" />}
+                  icon={<Bell className="h-12 w-12 text-tangerine" />}
                   title="Smart Notifications"
                   description="Keep patients and staff informed with automated reminders and important updates."
                 />
                 <FeatureCard
-                  icon={<BarChart className="h-12 w-12 text-emerald-700" />}
+                  icon={<BarChart className="h-12 w-12 text-tangerine" />}
                   title="Analytics Dashboard"
                   description="Gain insights into your practice with comprehensive reporting and analytics tools."
                 />
                 <FeatureCard
-                  icon={<Shield className="h-12 w-12 text-emerald-700" />}
+                  icon={<Shield className="h-12 w-12 text-tangerine" />}
                   title="HIPAA Compliant"
                   description="Rest easy knowing that all patient data is securely stored and transmitted."
                 />
@@ -145,7 +136,7 @@ const Features = () => {
             </div>
           </section>
 
-          <section className="bg-emerald-50 py-20">
+          <section className="bg-gradient-to-b from-chiffon to-gray-100 py-20">
             <div className="container mx-auto px-4 text-center">
               <h2 className="text-3xl font-bold mb-6">
                 Ready to Transform Your Practice?
@@ -155,7 +146,7 @@ const Features = () => {
                 their operations with MediCal.
               </p>
               <Link href="/contactus">
-                <Button className="bg-emerald-700 text-white hover:bg-emerald-800 text-lg px-8 py-3">
+                <Button className="bg-tangerine text-white hover:bg-salmon text-lg px-8 py-3">
                   Start Your Free Trial
                 </Button>
               </Link>

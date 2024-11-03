@@ -1,4 +1,4 @@
-import { Calendar } from "lucide-react";
+import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
@@ -29,7 +29,7 @@ const PricingCard: React.FC<PricingCardProps> = ({
       <ul className="mb-6">
         {features.map((feature, index) => (
           <li key={index} className="flex items-center mb-2">
-            <Calendar className="h-5 w-5 text-tangerine mr-2" />
+            <Check className="h-5 w-5 text-tangerine mr-2" />
             <span>{feature}</span>
           </li>
         ))}

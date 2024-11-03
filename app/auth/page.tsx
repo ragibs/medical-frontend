@@ -23,7 +23,7 @@ const Auth = () => {
           <div className="mx-auto w-full max-w-md space-y-6">
             <div className="flex-1 p-8 lg:p-12">
               <div className="flex items-center mb-6">
-                <KeySquare className="h-8 w-8 text-emerald-600 mr-3" />
+                <KeySquare className="h-8 w-8 text-tangerine mr-3" />
                 <h1 className="text-3xl font-bold text-gray-900">
                   Welcome to MediCal
                 </h1>
@@ -58,7 +58,7 @@ const Auth = () => {
             </div>
           </div>
         </div>
-        <div className="hidden lg:flex flex-1 bg-emerald-600 p-12 items-center justify-center">
+        <div className="hidden lg:flex flex-1 bg-pine p-12 items-center justify-center">
           <div className="max-w-md text-white">
             <Image
               src="/images/testimonial2.jpg"
@@ -78,7 +78,7 @@ const Auth = () => {
               </span>
             </blockquote>
             <p className="font-semibold text-lg">Kwame Zuberi</p>
-            <p className="text-emerald-200">
+            <p className="text-salmon">
               Clinic Manager, St. Michael's Health Centre
             </p>
           </div>

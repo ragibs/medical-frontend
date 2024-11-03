@@ -35,7 +35,7 @@ const ContactUs = () => {
   return (
     <>
       <Header />
-      <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-teal-100 flex flex-col lg:flex-row items-center justify-center p-4 lg:p-8">
+      <div className="min-h-screen bg-gradient-to-b from-chiffon to-gray-100 flex flex-col lg:flex-row items-center justify-center p-4 lg:p-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -44,7 +44,7 @@ const ContactUs = () => {
         >
           <div className="flex-1 p-8 lg:p-12">
             <div className="flex items-center mb-6">
-              <Calendar className="h-8 w-8 text-emerald-600 mr-3" />
+              <Calendar className="h-8 w-8 text-tangerine mr-3" />
               <h1 className="text-3xl font-bold text-gray-900">
                 Contact our team
               </h1>
@@ -67,7 +67,7 @@ const ContactUs = () => {
                   value={formData.name}
                   onChange={handleChange}
                   required
-                  className="w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500"
+                  className="w-full rounded-md border-gray-300 shadow-sm focus:border-tangerine focus:ring-tangerine"
                   placeholder="John Doe"
                 />
               </div>
@@ -84,7 +84,7 @@ const ContactUs = () => {
                   value={formData.businessName}
                   onChange={handleChange}
                   required
-                  className="w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500"
+                  className="w-full rounded-md border-gray-300 shadow-sm focus:border-tangerine focus:ring-tangerine"
                   placeholder="Acme Inc."
                 />
               </div>
@@ -102,7 +102,7 @@ const ContactUs = () => {
                   value={formData.email}
                   onChange={handleChange}
                   required
-                  className="w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500"
+                  className="w-full rounded-md border-gray-300 shadow-sm focus:border-tangerine focus:ring-tangerine"
                   placeholder="john@example.com"
                 />
               </div>
@@ -119,13 +119,13 @@ const ContactUs = () => {
                   value={formData.message}
                   onChange={handleChange}
                   required
-                  className="w-full rounded-md border-gray-300 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 min-h-[120px]"
+                  className="w-full rounded-md border-gray-300 shadow-sm focus:border-tangerine focus:ring-tangerine min-h-[120px]"
                   placeholder="How can we help you?"
                 />
               </div>
               <Button
                 type="submit"
-                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 rounded-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-opacity-50"
+                className="w-full bg-tangerine hover:bg-salmon text-white font-semibold py-3 rounded-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-tangerine focus:ring-opacity-50"
                 disabled={isSubmitting}
               >
                 {isSubmitting ? (
@@ -142,7 +142,7 @@ const ContactUs = () => {
               </Button>
             </form>
           </div>
-          <div className="hidden lg:flex flex-1 bg-emerald-600 p-12 items-center justify-center">
+          <div className="hidden lg:flex flex-1 bg-pine p-12 items-center justify-center">
             <div className="max-w-md text-white">
               <Image
                 src="/images/testimonial1.jpg"
@@ -162,7 +162,7 @@ const ContactUs = () => {
                 </span>
               </blockquote>
               <p className="font-semibold text-lg">Dr. Soo-Yeon Lee</p>
-              <p className="text-emerald-200">
+              <p className="text-salmon">
                 General Practitioner, HealthFirst Clinic
               </p>
             </div>
