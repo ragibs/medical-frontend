@@ -19,21 +19,21 @@ const Header = () => {
           <Image src={logo} width={60} alt={"Logo of medical"} />
         </div>
         <nav className="hidden md:flex space-x-8">
-          <Link href="/" className="hover:text-tangerine">
+          <Link href="/" className="hover:text-salmon">
             Home
           </Link>
-          <Link href="/features" className="hover:text-tangerine">
+          <Link href="/features" className="hover:text-salmon">
             Features
           </Link>
-          <Link href="/pricing" className="hover:text-tangerine">
+          <Link href="/pricing" className="hover:text-salmon">
             Pricing
           </Link>
-          <Link href="/testimonials" className="hover:text-tangerine">
+          <Link href="/testimonials" className="hover:text-salmon">
             Testimonials
           </Link>
         </nav>
         <div className="hidden md:block">
-          <Button className="bg-tangerine text-white hover:bg-salmon">
+          <Button className="bg-tangerine text-white hover:bg-pine">
             Try Now
           </Button>
         </div>
@@ -49,19 +49,19 @@ const Header = () => {
       {isMenuOpen && (
         <div className="md:hidden absolute top-20 left-0 right-0 bg-gradient-to-b from-chiffon to-gray-100 shadow-md z-40">
           <nav className="flex flex-col items-center py-4">
-            <Link href="/" className="py-2 hover:text-tangerine">
+            <Link href="/" className="py-2 hover:text-salmon">
               Home
             </Link>
-            <Link href="/features" className="py-2 hover:text-tangerine">
+            <Link href="/features" className="py-2 hover:text-salmon">
               Features
             </Link>
-            <Link href="/pricing" className="py-2 hover:text-tangerine">
+            <Link href="/pricing" className="py-2 hover:text-salmon">
               Pricing
             </Link>
-            <Link href="/testimonials" className="py-2 hover:text-tangerine">
+            <Link href="/testimonials" className="py-2 hover:text-salmon">
               Testimonials
             </Link>
-            <Button className="mt-4 bg-tangerine text-white hover:bg-salmon">
+            <Button className="mt-4 bg-tangerine text-white hover:bg-pine">
               Get Started
             </Button>
           </nav>

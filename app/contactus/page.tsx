@@ -125,7 +125,7 @@ const ContactUs = () => {
               </div>
               <Button
                 type="submit"
-                className="w-full bg-tangerine hover:bg-salmon text-white font-semibold py-3 rounded-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-tangerine focus:ring-opacity-50"
+                className="w-full bg-tangerine hover:bg-pine text-white font-semibold py-3 rounded-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-tangerine focus:ring-opacity-50"
                 disabled={isSubmitting}
               >
                 {isSubmitting ? (

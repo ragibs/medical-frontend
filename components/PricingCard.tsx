@@ -18,7 +18,7 @@ const PricingCard: React.FC<PricingCardProps> = ({
   return (
     <div
       className={`bg-white p-6 rounded-lg shadow-md ${
-        highlighted ? "ring-2 ring-salmon" : ""
+        highlighted ? "ring-2 ring-pine" : ""
       }`}
     >
       <h3 className="text-2xl font-bold mb-2">{title}</h3>

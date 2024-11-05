@@ -57,7 +57,11 @@ const Register = () => {
             <FormItem>
               <FormLabel>First Name</FormLabel>
               <FormControl>
-                <Input placeholder="Enter your first name" {...field} />
+                <Input
+                  placeholder="Enter your first name"
+                  {...field}
+                  className="w-full rounded-md border-gray-300 shadow-sm focus:border-tangerine focus:ring-tangerine"
+                />
               </FormControl>
               <FormMessage className="text-red-500" />
             </FormItem>
@@ -72,7 +76,11 @@ const Register = () => {
             <FormItem>
               <FormLabel>Last Name</FormLabel>
               <FormControl>
-                <Input placeholder="Enter your last name" {...field} />
+                <Input
+                  placeholder="Enter your last name"
+                  {...field}
+                  className="w-full rounded-md border-gray-300 shadow-sm focus:border-tangerine focus:ring-tangerine"
+                />
               </FormControl>
               <FormMessage className="text-red-500" />
             </FormItem>
@@ -87,7 +95,12 @@ const Register = () => {
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input type="email" placeholder="Enter your email" {...field} />
+                <Input
+                  type="email"
+                  placeholder="Enter your email"
+                  {...field}
+                  className="w-full rounded-md border-gray-300 shadow-sm focus:border-tangerine focus:ring-tangerine"
+                />
               </FormControl>
               <FormMessage className="text-red-500" />
             </FormItem>
@@ -106,6 +119,7 @@ const Register = () => {
                   type="password"
                   placeholder="Enter your password"
                   {...field}
+                  className="w-full rounded-md border-gray-300 shadow-sm focus:border-tangerine focus:ring-tangerine"
                 />
               </FormControl>
               <FormMessage className="text-red-500" />
@@ -125,6 +139,7 @@ const Register = () => {
                   type="password"
                   placeholder="Confirm your password"
                   {...field}
+                  className="w-full rounded-md border-gray-300 shadow-sm focus:border-tangerine focus:ring-tangerine"
                 />
               </FormControl>
               <FormMessage className="text-red-500" />
@@ -134,7 +149,7 @@ const Register = () => {
 
         <Button
           type="submit"
-          className="w-full bg-tangerine hover:bg-salmon text-white font-semibold py-3 rounded-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-opacity-50"
+          className="w-full bg-tangerine hover:bg-pine text-white font-semibold py-3 rounded-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-opacity-50"
         >
           Register
         </Button>

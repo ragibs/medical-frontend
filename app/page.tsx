@@ -33,14 +33,14 @@ export default function LandingPage() {
                 services with our state-of-the-art platform.
               </p>
               <div className="flex space-x-4">
-                <Button className="bg-tangerine text-white hover:bg-salmon">
+                <Button className="bg-tangerine text-white hover:bg-pine">
                   <span className="md:hidden">Try Now</span>
                   <span className="hidden md:inline">Get Started</span>
                 </Button>
                 <Link href="/contactus">
                   <Button
                     variant="outline"
-                    className="text-tangerine border-tangerine hover:bg-salmon hover:text-white"
+                    className="text-tangerine border-tangerine hover:bg-pine hover:text-white"
                   >
                     Learn More
                   </Button>
@@ -215,7 +215,7 @@ export default function LandingPage() {
                     </div>
                     <Button
                       type="submit"
-                      className="w-full bg-tangerine text-white hover:bg-salmon rounded-md"
+                      className="w-full bg-tangerine text-white hover:bg-pine rounded-md"
                     >
                       <Send className="w-4 h-4 mr-2" />
                       Send Message

@@ -146,7 +146,7 @@ const Features = () => {
                 their operations with MediCal.
               </p>
               <Link href="/contactus">
-                <Button className="bg-tangerine text-white hover:bg-salmon text-lg px-8 py-3">
+                <Button className="bg-tangerine text-white hover:bg-pine text-lg px-8 py-3">
                   Start Your Free Trial
                 </Button>
               </Link>
