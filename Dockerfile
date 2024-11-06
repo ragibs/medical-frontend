@@ -24,3 +24,9 @@ CMD ["npm", "run", "dev"]
 # docker build -t  medical_app:latest .
 # Run the Docker container with a specific name 'medical_app_container' mapping port 3000 from the container to port 3000 on the host
 # docker run -p 3000:3000 --name medical_app_container medical_app:latest
+# To stop the container, run the following command:
+# docker stop medical_app_container
+# To remove the container, run the following command:
+# docker rm medical_app_container
+# to start the container, run the following command:
+# docker start medical_app_container
