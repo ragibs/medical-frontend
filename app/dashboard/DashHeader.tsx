@@ -22,9 +22,7 @@ const Header: React.FC<HeaderProps> = ({ setSidebarOpen }) => {
           <PlusCircle className="mr-2 h-4 w-4" />
           Add New
         </Button>
-        <Button variant="ghost" className="text-sacramento hover:text-pine">
-          <Bell className="h-5 w-5" />
-        </Button>
+
         <Button
           className="lg:hidden"
           onClick={() => setSidebarOpen((prev) => !prev)}
