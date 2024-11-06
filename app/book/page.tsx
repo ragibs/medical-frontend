@@ -9,10 +9,12 @@ import {
   Calendar as CalendarIcon,
   Send,
   Loader2,
+  Ellipsis,
   Brain,
   Phone,
   Mail,
   X,
+  BadgeAlert,
 } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -31,6 +33,14 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import Image from "next/image";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { generateText } from "@/config/geminiConfig";
 
 const doctors = [
   {
@@ -78,12 +88,19 @@ export default function BookAppointment() {
     appointmentTime: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [callingGemini, setCallingGemini] = useState(false);
+  const [showSummary, setShowSummary] = useState(false);
+  const [summary, setSummary] = useState("");
+  const [prompt, setPrompt] = useState<string>("");
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
     setFormData((prevState) => ({ ...prevState, [name]: value }));
+    if (name === "symptoms") {
+      setPrompt(value);
+    }
   };
 
   const handleDateChange = (
@@ -107,9 +124,19 @@ export default function BookAppointment() {
     // Here you would typically send the form data to your backend
   };
 
-  const handleAISummarize = () => {
-    // Placeholder for AI summarization functionality
-    console.log("AI Summarize clicked");
+  const handleAISummarize = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setCallingGemini(true);
+
+    try {
+      const text = await generateText(prompt);
+      setSummary(text || "Error generating text.");
+    } catch (error) {
+      console.error("Error:", error);
+    } finally {
+      setCallingGemini(false);
+      setShowSummary(true);
+    }
   };
 
   const handleAIRecommendation = () => {
@@ -168,6 +195,7 @@ export default function BookAppointment() {
                 required
                 className="w-full rounded-md border-pine focus:border-tangerine focus:ring-tangerine"
                 placeholder="John"
+                disabled={isSubmitting || callingGemini}
               />
             </div>
             <div className="space-y-2">
@@ -185,6 +213,7 @@ export default function BookAppointment() {
                 required
                 className="w-full rounded-md border-pine focus:border-tangerine focus:ring-tangerine"
                 placeholder="Doe"
+                disabled={isSubmitting || callingGemini}
               />
             </div>
           </div>
@@ -203,6 +232,7 @@ export default function BookAppointment() {
                     "w-full justify-start text-left font-normal",
                     !formData.dob && "text-muted-foreground"
                   )}
+                  disabled={isSubmitting || callingGemini}
                 >
                   <CalendarIcon className="mr-2 h-4 w-4" />
                   {formData.dob ? (
@@ -244,6 +274,7 @@ export default function BookAppointment() {
                   required
                   className="w-full rounded-md border-pine focus:border-tangerine focus:ring-tangerine"
                   placeholder="(123) 456-7890"
+                  disabled={isSubmitting || callingGemini}
                 />
               </div>
             </div>
@@ -265,6 +296,7 @@ export default function BookAppointment() {
                   required
                   className="w-full rounded-md border-pine focus:border-tangerine focus:ring-tangerine"
                   placeholder="john@example.com"
+                  disabled={isSubmitting || callingGemini}
                 />
               </div>
             </div>
@@ -283,16 +315,52 @@ export default function BookAppointment() {
               onChange={handleChange}
               className="w-full rounded-md border-pine focus:border-tangerine focus:ring-tangerine min-h-[100px]"
               placeholder="Describe your symptoms..."
+              disabled={isSubmitting || callingGemini}
             />
             <Button
               type="button"
               onClick={handleAISummarize}
               className="w-full sm:w-auto mt-2 bg-tangerine hover:bg-pine text-white"
+              disabled={isSubmitting || callingGemini}
             >
-              <Brain className="mr-2 h-4 w-4" />
-              Summarize
+              {callingGemini ? (
+                <>
+                  <Ellipsis className="mr-2 h-4 w-4 animate-spin" />
+                  Summarizing...
+                </>
+              ) : (
+                <>
+                  <Brain className="mr-2 h-4 w-4" />
+                  Summarize
+                </>
+              )}
             </Button>
           </div>
+          {/* Alter section for the AI Summary */}
+          {showSummary && (
+            <Alert className=" border-tangerine">
+              <Brain className="h-4 w-4" />
+              <AlertTitle>
+                AI-Summarized Symptoms{" "}
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <BadgeAlert className="h-3 w-3 inline" />
+                    </TooltipTrigger>
+                    <TooltipContent className="bg-white ">
+                      <p className="w-64 text-xs break-words">
+                        Our AI analyze and condense the list of symptoms you’ve
+                        entered into a brief, easy-to-understand summary. This
+                        can help your healthcare provider quickly grasp the key
+                        details of your condition.
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </AlertTitle>
+              <AlertDescription>{summary}</AlertDescription>
+            </Alert>
+          )}
           <div className="space-y-2">
             <Label
               htmlFor="doctor"
@@ -301,7 +369,10 @@ export default function BookAppointment() {
               Choose a Doctor
             </Label>
             <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
-              <Select onValueChange={handleDoctorChange}>
+              <Select
+                onValueChange={handleDoctorChange}
+                disabled={isSubmitting || callingGemini}
+              >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select a doctor" />
                 </SelectTrigger>
@@ -333,6 +404,7 @@ export default function BookAppointment() {
                 type="button"
                 onClick={handleAIRecommendation}
                 className="w-full sm:w-auto bg-tangerine hover:bg-pine text-white"
+                disabled={isSubmitting || callingGemini}
               >
                 <Brain className="mr-2 h-4 w-4" />
                 Recommend
@@ -355,6 +427,7 @@ export default function BookAppointment() {
                       "w-full justify-start text-left font-normal",
                       !formData.appointmentDate && "text-muted-foreground"
                     )}
+                    disabled={isSubmitting || callingGemini}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
                     {formData.appointmentDate ? (
@@ -387,6 +460,7 @@ export default function BookAppointment() {
                 onValueChange={(value) =>
                   setFormData((prev) => ({ ...prev, appointmentTime: value }))
                 }
+                disabled={isSubmitting || callingGemini}
               >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select a time" />
