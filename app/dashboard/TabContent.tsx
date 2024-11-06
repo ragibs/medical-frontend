@@ -155,9 +155,8 @@ const TabContent: React.FC<TabContentProps> = ({ tab, data }) => {
                 {renderTableCells(item)}
                 <TableCell>
                   <Button
-                    variant="outline"
                     size="sm"
-                    className="text-pine hover:text-tangerine"
+                    className="text-pine bg-tangerine hover:bg-salmon"
                   >
                     {tab === "appointments" ? "Manage" : "Contact"}
                   </Button>
