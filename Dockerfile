@@ -18,3 +18,9 @@ EXPOSE 3000
 
 # Start the Next.js application in development mode
 CMD ["npm", "run", "dev"]
+
+# To run this on Docker, run the following command:
+# Build the Docker image with the name 'medical_app' and tag 'latest'
+# docker build -t  medical_app:latest .
+# Run the Docker container with a specific name 'medical_app_container' mapping port 3000 from the container to port 3000 on the host
+# docker run -p 3000:3000 --name medical_app_container medical_app:latest
