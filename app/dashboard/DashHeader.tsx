@@ -22,7 +22,6 @@ const Header: React.FC<HeaderProps> = ({ setSidebarOpen }) => {
           <PlusCircle className="mr-2 h-4 w-4" />
           Add New
         </Button>
-
         <Button
           className="lg:hidden"
           onClick={() => setSidebarOpen((prev) => !prev)}

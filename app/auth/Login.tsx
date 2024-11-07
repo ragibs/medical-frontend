@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/form";
 
 const loginSchema = z.object({
-  email: z.string().email().min(8, "Email is required"),
+  username: z.string().min(8, "Username is required"),
   password: z.string().min(8, "Password must be at least 8 characters long"),
 });
 
@@ -40,13 +40,13 @@ const Login = () => {
         {/* Username */}
         <FormField
           control={form.control}
-          name="email"
+          name="username"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email</FormLabel>
+              <FormLabel>Username</FormLabel>
               <FormControl>
                 <Input
-                  placeholder="Enter your email"
+                  placeholder="Enter your username"
                   {...field}
                   className="w-full rounded-md border-gray-300 shadow-sm focus:border-tangerine focus:ring-tangerine"
                 />
