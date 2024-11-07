@@ -1,4 +1,3 @@
-// app/api/api.ts
 import axios from "axios";
 import Cookies from "js-cookie";
 
@@ -52,7 +51,7 @@ api.interceptors.response.use(
         // Clear tokens and redirect to login
         Cookies.remove("medappapi_access_token");
         Cookies.remove("medappapi_refresh_token");
-        window.location.href = "/login";
+        window.location.href = "/auth";
       }
     }
     return Promise.reject(error);

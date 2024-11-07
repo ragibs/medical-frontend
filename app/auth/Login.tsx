@@ -37,27 +37,11 @@ const Login = () => {
     },
   });
 
-  // Handle form submission
+  // Loginform submission
   const onSubmit = async (data: LoginFormValues) => {
     try {
-      const response = await login(data.username, data.password); // Call the login function from auth.ts
-
-      // Debugging step: Log the response to ensure tokens are received
-      console.log("Login successful. Tokens:", response);
-
-      // Store tokens in cookies manually (in case there's an issue with the `login` function)
-      Cookies.set("medappapi_access_token", response.access, { secure: true });
-      Cookies.set("medappapi_refresh_token", response.refresh, {
-        secure: true,
-      });
-
-      // Debugging step: Check if cookies are being set
-      console.log("Access Token:", Cookies.get("medappapi_access_token"));
-      console.log("Refresh Token:", Cookies.get("medappapi_refresh_token"));
-
-      // Redirect to the dashboard after successful login
-      router.push("/dashboard"); // Redirect after successful login
-      console.log("Redirecting to /dashboard");
+      await login(data.username, data.password);
+      router.push("/dashboard");
     } catch (error) {
       console.error("Login failed:", error);
       form.setError("username", { message: "Invalid credentials" });
