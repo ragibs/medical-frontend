@@ -4,10 +4,12 @@ import Cookies from "js-cookie";
 // Login
 export const login = async (username: string, password: string) => {
   const response = await api.post("/login/", { username, password });
-  const { access, refresh } = response.data;
+  const { access } = response.data;
 
-  Cookies.set("medappapi_access_token", access, { secure: true });
-  Cookies.set("medappapi_refresh_token", refresh, { secure: true });
+  Cookies.set("medappapi_access_token", access, {
+    secure: true,
+    sameSite: "Strict",
+  });
 
   return response.data;
 };
@@ -15,6 +17,5 @@ export const login = async (username: string, password: string) => {
 // Logout
 export const logout = () => {
   Cookies.remove("medappapi_access_token");
-  Cookies.remove("medappapi_refresh_token");
   window.location.href = "/auth";
 };
