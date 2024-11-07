@@ -1,5 +1,6 @@
 "use client";
-import Link from "next/link";
+
+import Cookies from "js-cookie";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -14,24 +15,54 @@ import {
   FormControl,
   FormMessage,
 } from "@/components/ui/form";
+import { useRouter } from "next/navigation";
+import { login } from "../auth/auth"; // Import the login function from auth.ts
 
 const loginSchema = z.object({
-  username: z.string().min(8, "Username is required"),
-  password: z.string().min(8, "Password must be at least 8 characters long"),
+  username: z.string().min(2, "Username is required"),
+  password: z.string().min(2, "Password must be at least 2 characters long"),
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 
 const Login = () => {
-  // Step 2: Set up React Hook Form with Zod resolver
+  const router = useRouter(); // Router to navigate after login
+
+  // Set up React Hook Form with Zod resolver
   const form = useForm<LoginFormValues>({
-    resolver: zodResolver(loginSchema), // Zod resolver
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      username: "", // Initialize with an empty string
+      password: "", // Initialize with an empty string
+    },
   });
 
-  // Step 3: Handle form submission
-  const onSubmit = (data: LoginFormValues) => {
-    console.log("Login Data:", data);
-    // Handle login logic here, e.g., send data to API
+  // Handle form submission
+  const onSubmit = async (data: LoginFormValues) => {
+    try {
+      const response = await login(data.username, data.password); // Call the login function from auth.ts
+
+      // Debugging step: Log the response to ensure tokens are received
+      console.log("Login successful. Tokens:", response);
+
+      // Store tokens in cookies manually (in case there's an issue with the `login` function)
+      Cookies.set("medappapi_access_token", response.access, { secure: true });
+      Cookies.set("medappapi_refresh_token", response.refresh, {
+        secure: true,
+      });
+
+      // Debugging step: Check if cookies are being set
+      console.log("Access Token:", Cookies.get("medappapi_access_token"));
+      console.log("Refresh Token:", Cookies.get("medappapi_refresh_token"));
+
+      // Redirect to the dashboard after successful login
+      router.push("/dashboard"); // Redirect after successful login
+      console.log("Redirecting to /dashboard");
+    } catch (error) {
+      console.error("Login failed:", error);
+      form.setError("username", { message: "Invalid credentials" });
+      form.setError("password", { message: "Please check your credentials" });
+    }
   };
 
   return (

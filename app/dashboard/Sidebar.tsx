@@ -11,6 +11,7 @@ import {
   LogOut,
 } from "lucide-react";
 import Image from "next/image";
+import { logout } from "@/app/auth/auth"; // Import the logout function
 
 interface SidebarProps {
   activeTab: string;
@@ -84,6 +85,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           <Button
             variant="ghost"
             className="w-full justify-start text-chiffon hover:text-salmon hover:bg-pine"
+            onClick={logout}
           >
             <LogOut className="mr-2 h-5 w-5" />
             Logout
