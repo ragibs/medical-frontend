@@ -1,12 +1,10 @@
 "use client";
 
-import Cookies from "js-cookie";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Form,
   FormField,
@@ -16,7 +14,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { useRouter } from "next/navigation";
-import { login } from "../auth/auth"; // Import the login function from auth.ts
+import { useAuth } from "@/app/auth";
 
 const loginSchema = z.object({
   username: z.string().min(2, "Username is required"),
@@ -26,6 +24,8 @@ const loginSchema = z.object({
 type LoginFormValues = z.infer<typeof loginSchema>;
 
 const Login = () => {
+  const { login } = useAuth();
+
   const router = useRouter(); // Router to navigate after login
 
   // Set up React Hook Form with Zod resolver

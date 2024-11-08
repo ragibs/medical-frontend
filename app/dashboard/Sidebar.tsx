@@ -11,7 +11,7 @@ import {
   LogOut,
 } from "lucide-react";
 import Image from "next/image";
-import { logout } from "@/app/auth/auth"; // Import the logout function
+import { useAuth } from "@/app/auth";
 
 interface SidebarProps {
   activeTab: string;
@@ -24,6 +24,8 @@ const Sidebar: React.FC<SidebarProps> = ({
   setActiveTab,
   sidebarOpen,
 }) => {
+  const { logout } = useAuth();
+
   return (
     <aside
       className={`${
