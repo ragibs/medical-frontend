@@ -51,6 +51,7 @@ const Login = () => {
       console.error("Login failed:", error);
       form.setError("username", { message: "Invalid credentials" });
       form.setError("password", { message: "Please check your credentials" });
+      setFormSubmitting(false);
     }
   };
 

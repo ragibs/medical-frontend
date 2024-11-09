@@ -12,6 +12,8 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { useAuth } from "@/app/auth";
+import { useUserContext } from "@/app/context";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface SidebarProps {
   activeTab: string;
@@ -25,6 +27,12 @@ const Sidebar: React.FC<SidebarProps> = ({
   sidebarOpen,
 }) => {
   const { logout } = useAuth();
+  const { user } = useUserContext();
+
+  const tabs =
+    user?.role === "ADMIN"
+      ? ["dashboard", "appointments", "patients", "doctors", "ai-assistant"]
+      : ["appointments", "ai-assistant"];
 
   return (
     <aside
@@ -41,13 +49,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             className="mb-5"
           />
           <nav className="space-y-4">
-            {[
-              "dashboard",
-              "appointments",
-              "patients",
-              "doctors",
-              "ai-assistant",
-            ].map((tab) => (
+            {tabs.map((tab) => (
               <Button
                 key={tab}
                 variant="ghost"
@@ -73,15 +75,31 @@ const Sidebar: React.FC<SidebarProps> = ({
         <div className="mt-auto p-6 border-t border-pine">
           <div className="flex items-center mb-4">
             <Avatar className="h-10 w-10 mr-3">
-              <AvatarImage
-                src="/placeholder.svg?height=40&width=40"
-                alt="User avatar"
-              />
-              <AvatarFallback>JD</AvatarFallback>
+              {user ? (
+                <AvatarFallback>
+                  {user.first_name.charAt(0)}
+                  {user.last_name.charAt(0)}
+                </AvatarFallback>
+              ) : (
+                <Skeleton className="w-full h-full rounded-full bg-salmon" />
+              )}
             </Avatar>
+
             <div>
-              <p className="text-sm font-medium">Dr. Jane Doe</p>
-              <p className="text-xs text-salmon">jane.doe@example.com</p>
+              {user ? (
+                <>
+                  <p className="text-sm font-medium">
+                    {user.role === "DOCTOR" ? `Dr. ` : ""}
+                    {user.first_name} {user.last_name}
+                  </p>
+                  <p className="text-xs text-salmon">{user.email}</p>
+                </>
+              ) : (
+                <>
+                  <Skeleton className="w-[75%] h-[24px] rounded-full mb-2 bg-salmon" />
+                  <Skeleton className="w-[60%] h-[20px] rounded-full bg-salmon" />
+                </>
+              )}
             </div>
           </div>
           <Button

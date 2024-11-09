@@ -21,7 +21,7 @@ const Auth = () => {
       >
         <div className="flex flex-col items-center justify-center bg-muted p-4 md:p-8 lg:p-12">
           <div className="mx-auto w-full max-w-md space-y-6">
-            <div className="flex-1 p-8 lg:p-12">
+            <div className="flex-1 p-8 lg:p-12 bg-white rounded-2xl shadow-xl">
               <div className="flex items-center mb-6">
                 <KeySquare className="h-8 w-8 text-tangerine mr-3" />
                 <h1 className="text-3xl font-bold text-gray-900">
@@ -33,7 +33,7 @@ const Auth = () => {
                 personalized dashboard.
               </p>
 
-              <Tabs defaultValue="login" className="w-[400px]">
+              <Tabs defaultValue="login">
                 <TabsList className="grid w-full grid-cols-2">
                   <TabsTrigger value="login">Login</TabsTrigger>
                   <TabsTrigger value="register">Register</TabsTrigger>

@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Sidebar from "./Sidebar";
 import Header from "./DashHeader";
 import { SummaryCards } from "./SummaryCards";
@@ -10,6 +10,7 @@ import AIAssistantButton from "./AIAssistantButton";
 import { AIAssistant } from "./AIAssistant";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { motion, AnimatePresence } from "framer-motion";
+import { useUserContext } from "@/app/context";
 
 // Mock data
 const appointments = [
@@ -82,16 +83,37 @@ const doctors = [
 ];
 
 const AdminDashboard = () => {
-  const [activeTab, setActiveTab] = useState<string>("dashboard");
+  const { user } = useUserContext();
+
+  const [activeTab, setActiveTab] = useState<string>("");
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
   const [aiAssistantOpen, setAiAssistantOpen] = useState<boolean>(false);
 
+  useEffect(() => {
+    if (user) {
+      if (user.role === "ADMIN") {
+        setActiveTab("dashboard");
+      } else if (user.role === "DOCTOR" || user.role === "PATIENT") {
+        setActiveTab("appointments");
+      } else {
+        setActiveTab("dashboard");
+      }
+    }
+  }, [user]);
+
   const toggleAiAssistant = () => {
-    setAiAssistantOpen(!aiAssistantOpen);
+    setAiAssistantOpen((prev) => !prev);
+
     if (!aiAssistantOpen) {
       setActiveTab("ai-assistant");
     } else {
-      setActiveTab("dashboard");
+      if (user?.role === "ADMIN") {
+        setActiveTab("dashboard");
+      } else if (user?.role === "DOCTOR" || user?.role === "PATIENT") {
+        setActiveTab("appointments");
+      } else {
+        setActiveTab("dashboard");
+      }
     }
   };
 
