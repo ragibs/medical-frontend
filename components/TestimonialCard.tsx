@@ -25,6 +25,7 @@ const TestimonialCard: React.FC<TestimonialCardProps> = ({
           height={40}
           alt={`Avatar of ${author}`}
           className="rounded-full mr-4 object-fill"
+          style={{ width: "100%", height: "auto" }}
         />
         <div>
           <div className="font-bold text-gray-900">{author}</div>

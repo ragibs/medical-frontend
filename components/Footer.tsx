@@ -8,7 +8,7 @@ const Footer = () => {
       <div className="container mx-auto px-4">
         <div className="flex flex-col md:flex-row justify-between items-center">
           <div className="flex items-center space-x-2 mb-4 md:mb-0">
-            <Image src={logo} width={60} alt={"Logo of medical"} />
+            <Image src={logo} width={60} alt={"Logo of medical"} priority />
           </div>
           <nav className="flex space-x-4 mb-4 md:mb-0">
             <Link href="#" className="hover:text-emerald-700">

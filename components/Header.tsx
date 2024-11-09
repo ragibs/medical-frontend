@@ -16,7 +16,7 @@ const Header = () => {
     <>
       <header className="container mx-auto px-4 py-6 flex items-center justify-between relative z-50 bg-chiffon">
         <div className="flex items-center space-x-2">
-          <Image src={logo} width={60} alt={"Logo of medical"} />
+          <Image src={logo} width={60} alt={"Logo of medical"} priority />
         </div>
         <nav className="hidden md:flex space-x-8">
           <Link href="/" className="hover:text-salmon">
@@ -33,9 +33,11 @@ const Header = () => {
           </Link>
         </nav>
         <div className="hidden md:block">
-          <Button className="bg-tangerine text-white hover:bg-pine">
-            Try Now
-          </Button>
+          <Link href="/auth">
+            <Button className="bg-tangerine text-white hover:bg-pine">
+              Try Now
+            </Button>
+          </Link>
         </div>
         <button className="md:hidden" onClick={toggleMenu}>
           {isMenuOpen ? (
@@ -61,9 +63,11 @@ const Header = () => {
             <Link href="/testimonials" className="py-2 hover:text-salmon">
               Testimonials
             </Link>
-            <Button className="mt-4 bg-tangerine text-white hover:bg-pine">
-              Get Started
-            </Button>
+            <Link href="/auth">
+              <Button className="mt-4 bg-tangerine text-white hover:bg-pine">
+                Get Started
+              </Button>
+            </Link>
           </nav>
         </div>
       )}

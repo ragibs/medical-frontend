@@ -15,6 +15,8 @@ import {
 } from "@/components/ui/form";
 import { useState } from "react";
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
+import { Loader2, UserRoundCheck } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 // List of all U.S. states with abbreviations
 const US_STATES = [
@@ -131,8 +133,10 @@ const Register = () => {
   const [submitted, setSubmitted] = useState(false);
   const [submitMessage, setSubmitMessage] = useState("");
 
+  const [formSubmitting, setFormSubmitting] = useState(false);
+
   const onSubmit = async (data: FormData) => {
-    const payload = {
+    const formData = {
       username: data.username,
       email: data.email,
       password1: data.password,
@@ -147,17 +151,20 @@ const Register = () => {
       date_of_birth: data.date_of_birth,
     };
 
+    setFormSubmitting(true);
+
     try {
       const response = await fetch("http://127.0.0.1:8000/register/patient/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(formData),
       });
 
       if (response.ok) {
         const result = await response.json();
+        setFormSubmitting(false);
         setSubmitted(true);
         setSubmitMessage(result.message);
       } else {
@@ -188,6 +195,7 @@ const Register = () => {
                       placeholder="Enter your first name"
                       {...field}
                       className="w-full rounded-md border-gray-300 shadow-sm focus:border-tangerine focus:ring-tangerine"
+                      disabled={formSubmitting}
                     />
                   </FormControl>
                   <FormMessage className="text-red-500" />
@@ -206,6 +214,7 @@ const Register = () => {
                       placeholder="Enter your last name"
                       {...field}
                       className="w-full rounded-md border-gray-300 shadow-sm focus:border-tangerine focus:ring-tangerine"
+                      disabled={formSubmitting}
                     />
                   </FormControl>
                   <FormMessage className="text-red-500" />
@@ -227,6 +236,7 @@ const Register = () => {
                       placeholder="Select your date of birth"
                       {...field}
                       className=" rounded-md border-gray-300 shadow-sm focus:border-tangerine focus:ring-tangerine w-44"
+                      disabled={formSubmitting}
                     />
                   </FormControl>
                   <FormMessage className="text-red-500" />
@@ -246,6 +256,7 @@ const Register = () => {
                       placeholder="Enter your email"
                       {...field}
                       className="w-full rounded-md border-gray-300 shadow-sm focus:border-tangerine focus:ring-tangerine"
+                      disabled={formSubmitting}
                     />
                   </FormControl>
                   <FormMessage className="text-red-500" />
@@ -264,6 +275,7 @@ const Register = () => {
                       placeholder="Enter a username"
                       {...field}
                       className="w-full rounded-md border-gray-300 shadow-sm focus:border-tangerine focus:ring-tangerine"
+                      disabled={formSubmitting}
                     />
                   </FormControl>
                   <FormMessage className="text-red-500" />
@@ -286,6 +298,7 @@ const Register = () => {
                         field.onChange(formatPhoneNumber(e.target.value))
                       }
                       className="w-full rounded-md border-gray-300 shadow-sm focus:border-tangerine focus:ring-tangerine"
+                      disabled={formSubmitting}
                     />
                   </FormControl>
                   <FormMessage className="text-red-500" />
@@ -305,6 +318,7 @@ const Register = () => {
                       placeholder="Enter your address"
                       {...field}
                       className="w-full rounded-md border-gray-300 shadow-sm focus:border-tangerine focus:ring-tangerine"
+                      disabled={formSubmitting}
                     />
                   </FormControl>
                   <FormMessage className="text-red-500" />
@@ -324,6 +338,7 @@ const Register = () => {
                       placeholder="Enter your city"
                       {...field}
                       className="w-full rounded-md border-gray-300 shadow-sm focus:border-tangerine focus:ring-tangerine"
+                      disabled={formSubmitting}
                     />
                   </FormControl>
                   <FormMessage className="text-red-500" />
@@ -333,6 +348,7 @@ const Register = () => {
 
             {/* State Selector */}
             <FormField
+              disabled={formSubmitting}
               control={form.control}
               name="state"
               render={({ field }) => (
@@ -368,6 +384,7 @@ const Register = () => {
                       placeholder="Enter your zipcode"
                       {...field}
                       className="w-full rounded-md border-gray-300 shadow-sm focus:border-tangerine focus:ring-tangerine"
+                      disabled={formSubmitting}
                     />
                   </FormControl>
                   <FormMessage className="text-red-500" />
@@ -388,6 +405,7 @@ const Register = () => {
                       placeholder="Enter your password"
                       {...field}
                       className="w-full rounded-md border-gray-300 shadow-sm focus:border-tangerine focus:ring-tangerine"
+                      disabled={formSubmitting}
                     />
                   </FormControl>
                   <FormMessage className="text-red-500" />
@@ -408,6 +426,7 @@ const Register = () => {
                       placeholder="Confirm your password"
                       {...field}
                       className="w-full rounded-md border-gray-300 shadow-sm focus:border-tangerine focus:ring-tangerine"
+                      disabled={formSubmitting}
                     />
                   </FormControl>
                   <FormMessage className="text-red-500" />
@@ -418,8 +437,16 @@ const Register = () => {
             <Button
               type="submit"
               className="w-full bg-tangerine hover:bg-pine text-white font-semibold py-3 rounded-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-opacity-50"
+              disabled={formSubmitting}
             >
-              Register
+              {formSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Registering...
+                </>
+              ) : (
+                "Register"
+              )}
             </Button>
           </form>
         </Form>
@@ -431,7 +458,11 @@ const Register = () => {
             loop
             autoplay
           />
-          <p className="text-tangerine text-lg">{submitMessage}</p>
+          <Alert className=" border-tangerine ">
+            <UserRoundCheck className="h-4 w-4" />
+            <AlertTitle>You’re All Set!</AlertTitle>
+            <AlertDescription>{submitMessage}</AlertDescription>
+          </Alert>
         </div>
       )}
     </>

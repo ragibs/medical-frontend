@@ -33,10 +33,13 @@ export default function LandingPage() {
                 services with our state-of-the-art platform.
               </p>
               <div className="flex space-x-4">
-                <Button className="bg-tangerine text-white hover:bg-pine">
-                  <span className="md:hidden">Try Now</span>
-                  <span className="hidden md:inline">Get Started</span>
-                </Button>
+                <Link href="/auth">
+                  <Button className="bg-tangerine text-white hover:bg-pine">
+                    <span className="md:hidden">Try Now</span>
+                    <span className="hidden md:inline">Get Started</span>
+                  </Button>
+                </Link>
+
                 <Link href="/contactus">
                   <Button
                     variant="outline"
@@ -54,6 +57,7 @@ export default function LandingPage() {
                 height={600}
                 alt="MediCal App"
                 className="rounded-lg sm:w-300"
+                style={{ width: "100%", height: "auto" }}
               />
             </div>
           </section>

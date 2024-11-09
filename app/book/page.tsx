@@ -319,7 +319,7 @@ export default function BookAppointment() {
             <Alert className=" border-tangerine">
               <Brain className="h-4 w-4" />
               <AlertTitle>
-                AI-Summarized Symptoms{" "}
+                Intelligent Symptom Summary
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger>
