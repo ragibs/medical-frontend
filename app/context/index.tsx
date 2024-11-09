@@ -1,29 +1,45 @@
 "use client";
-import { createContext, useState, ReactNode, useContext } from "react";
+import {
+  createContext,
+  useState,
+  ReactNode,
+  useContext,
+  useEffect,
+} from "react";
+import Cookies from "js-cookie";
 
-// Define the structure of the User object
 interface User {
   id: number;
+  email: string;
   first_name: string;
   last_name: string;
   username: string;
   role: string;
 }
 
-// Define the context props interface
 interface UserContextProps {
   user: User | null;
   setUser: (user: User | null) => void;
   clearUser: () => void;
 }
 
-// Create the context with a default value of undefined
 const UserContext = createContext<UserContextProps | null>(null);
 
 export const AppWrapper = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
 
-  const clearUser = () => setUser(null);
+  useEffect(() => {
+    const storedUser = Cookies.get("medappapi_user");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+  }, []);
+
+  const clearUser = () => {
+    setUser(null);
+    Cookies.remove("medappapi_user");
+    Cookies.remove("medappapi_access_token");
+  };
 
   return (
     <UserContext.Provider value={{ user, setUser, clearUser }}>

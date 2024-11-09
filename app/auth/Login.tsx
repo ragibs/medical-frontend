@@ -26,7 +26,7 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 const Login = () => {
   const { login } = useAuth();
 
-  const router = useRouter(); // Router to navigate after login
+  const router = useRouter();
 
   // Set up React Hook Form with Zod resolver
   const form = useForm<LoginFormValues>({

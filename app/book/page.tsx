@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -11,17 +11,9 @@ import {
   Loader2,
   Ellipsis,
   Brain,
-  Phone,
-  Mail,
   X,
   BadgeAlert,
 } from "lucide-react";
-import { Calendar } from "@/components/ui/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
@@ -30,9 +22,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { format } from "date-fns";
-import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
-import Image from "next/image";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   Tooltip,
@@ -40,28 +30,11 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { generateText } from "@/config/geminiConfig";
-
-const doctors = [
-  {
-    id: "dr-smith",
-    name: "Dr. Smith",
-    avatar: "/placeholder.svg?height=50&width=50",
-    description: "Cardiologist with 15 years of experience",
-  },
-  {
-    id: "dr-johnson",
-    name: "Dr. Johnson",
-    avatar: "/placeholder.svg?height=50&width=50",
-    description: "Pediatrician specializing in newborn care",
-  },
-  {
-    id: "dr-williams",
-    name: "Dr. Williams",
-    avatar: "/placeholder.svg?height=50&width=50",
-    description: "Dermatologist focusing on skin cancer prevention",
-  },
-];
+import { summarizeSymptoms, recommendDoctor } from "@/config/geminiConfig";
+import { useUserContext } from "@/app/context";
+import api from "../api/api";
+import { useRouter } from "next/navigation";
+import { Doctor, Recommendation } from "@/types/types";
 
 const appointmentTimes = [
   "09:00",
@@ -76,22 +49,60 @@ const appointmentTimes = [
 ];
 
 export default function BookAppointment() {
+  const { user } = useUserContext();
+  const router = useRouter();
+
   const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    dob: undefined as Date | undefined,
-    phone: "",
-    email: "",
+    firstName: user?.first_name || "",
+    lastName: user?.last_name || "",
+    username: user?.username || "",
+    email: user?.email || "",
     symptoms: "",
     doctor: "",
     appointmentDate: undefined as Date | undefined,
     appointmentTime: "",
   });
+
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        firstName: user.first_name,
+        lastName: user.last_name,
+        username: user.username,
+        email: user.email,
+        symptoms: "",
+        doctor: "",
+        appointmentDate: undefined,
+        appointmentTime: "",
+      });
+    }
+  }, [user]);
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [callingGemini, setCallingGemini] = useState(false);
+  // Gemini States
   const [showSummary, setShowSummary] = useState(false);
   const [summary, setSummary] = useState("");
   const [prompt, setPrompt] = useState<string>("");
+  const [showRecommendation, setShowRecommendation] = useState(false);
+  const [recommendation, setRecommendation] = useState<Recommendation | null>(
+    null
+  );
+
+  const [doctors, setDoctors] = useState<Doctor[]>([]);
+
+  useEffect(() => {
+    const fetchDoctors = async () => {
+      try {
+        const response = await api.get("/getdoctors/");
+        setDoctors(response.data);
+      } catch (error) {
+        console.error("Error fetching doctors:", error);
+      }
+    };
+
+    fetchDoctors();
+  }, []);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -129,7 +140,7 @@ export default function BookAppointment() {
     setCallingGemini(true);
 
     try {
-      const text = await generateText(prompt);
+      const text = await summarizeSymptoms(prompt);
       setSummary(text || "Error generating text.");
     } catch (error) {
       console.error("Error:", error);
@@ -139,21 +150,28 @@ export default function BookAppointment() {
     }
   };
 
-  const handleAIRecommendation = () => {
-    // Placeholder for AI doctor recommendation functionality
-    console.log("AI Recommendation clicked");
+  const handleAIRecommendation = async () => {
+    setCallingGemini(true);
+
+    try {
+      const recommendObject = await recommendDoctor(doctors, summary);
+      setRecommendation(recommendObject);
+      if (recommendObject?.doctorId) {
+        setFormData((prevState) => ({
+          ...prevState,
+          doctor: recommendObject.doctorId,
+        }));
+      }
+    } catch (error) {
+      console.error("Error: ", error);
+    } finally {
+      setCallingGemini(false);
+      setShowRecommendation(true);
+    }
   };
 
   const handleBack = () => {
-    // Placeholder for back functionality
-    console.log("Back button clicked");
-    // Here you would typically implement navigation back to the previous page
-  };
-
-  const handleCancel = () => {
-    // Placeholder for cancel functionality
-    console.log("Cancel button clicked");
-    // Here you would typically clear the form or navigate away from the booking page
+    router.push("/dashboard");
   };
 
   return (
@@ -194,8 +212,7 @@ export default function BookAppointment() {
                 onChange={handleChange}
                 required
                 className="w-full rounded-md border-pine focus:border-tangerine focus:ring-tangerine"
-                placeholder="John"
-                disabled={isSubmitting || callingGemini}
+                disabled
               />
             </div>
             <div className="space-y-2">
@@ -213,47 +230,9 @@ export default function BookAppointment() {
                 required
                 className="w-full rounded-md border-pine focus:border-tangerine focus:ring-tangerine"
                 placeholder="Doe"
-                disabled={isSubmitting || callingGemini}
+                disabled
               />
             </div>
-          </div>
-          <div className="space-y-2">
-            <Label
-              htmlFor="dob"
-              className="text-sm font-medium text-sacramento"
-            >
-              Date of Birth
-            </Label>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant={"outline"}
-                  className={cn(
-                    "w-full justify-start text-left font-normal",
-                    !formData.dob && "text-muted-foreground"
-                  )}
-                  disabled={isSubmitting || callingGemini}
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {formData.dob ? (
-                    format(formData.dob, "PPP")
-                  ) : (
-                    <span>Pick a date</span>
-                  )}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0">
-                <Calendar
-                  mode="single"
-                  selected={formData.dob}
-                  onSelect={(date) => handleDateChange(date, "dob")}
-                  initialFocus
-                  defaultMonth={new Date(1990, 0, 1)}
-                  fromYear={1900}
-                  toYear={new Date().getFullYear()}
-                />
-              </PopoverContent>
-            </Popover>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
@@ -261,20 +240,18 @@ export default function BookAppointment() {
                 htmlFor="phone"
                 className="text-sm font-medium text-sacramento"
               >
-                Phone Number
+                Username
               </Label>
               <div className="flex">
-                <Phone className="h-5 w-5 text-pine mr-2 self-center" />
                 <Input
-                  id="phone"
-                  name="phone"
-                  type="tel"
-                  value={formData.phone}
+                  id="username"
+                  name="username"
+                  value={formData.username}
                   onChange={handleChange}
                   required
                   className="w-full rounded-md border-pine focus:border-tangerine focus:ring-tangerine"
                   placeholder="(123) 456-7890"
-                  disabled={isSubmitting || callingGemini}
+                  disabled
                 />
               </div>
             </div>
@@ -286,7 +263,6 @@ export default function BookAppointment() {
                 Email
               </Label>
               <div className="flex">
-                <Mail className="h-5 w-5 text-pine mr-2 self-center" />
                 <Input
                   id="email"
                   name="email"
@@ -296,7 +272,7 @@ export default function BookAppointment() {
                   required
                   className="w-full rounded-md border-pine focus:border-tangerine focus:ring-tangerine"
                   placeholder="john@example.com"
-                  disabled={isSubmitting || callingGemini}
+                  disabled
                 />
               </div>
             </div>
@@ -321,7 +297,9 @@ export default function BookAppointment() {
               type="button"
               onClick={handleAISummarize}
               className="w-full sm:w-auto mt-2 bg-tangerine hover:bg-pine text-white"
-              disabled={isSubmitting || callingGemini}
+              disabled={
+                isSubmitting || callingGemini || formData.symptoms.length <= 0
+              }
             >
               {callingGemini ? (
                 <>
@@ -368,7 +346,7 @@ export default function BookAppointment() {
             >
               Choose a Doctor
             </Label>
-            <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
+            <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 pb-2">
               <Select
                 onValueChange={handleDoctorChange}
                 disabled={isSubmitting || callingGemini}
@@ -377,22 +355,19 @@ export default function BookAppointment() {
                   <SelectValue placeholder="Select a doctor" />
                 </SelectTrigger>
                 <SelectContent className="bg-chiffon">
-                  {doctors.map((doctor) => (
-                    <SelectItem key={doctor.id} value={doctor.id}>
+                  {doctors?.map((doctor) => (
+                    <SelectItem
+                      key={doctor.id}
+                      value={String(doctor.id)}
+                      className=" hover:bg-salmon cursor-pointer"
+                    >
                       <div className="flex items-center">
-                        <Image
-                          src={doctor.avatar}
-                          alt={doctor.name}
-                          width={40}
-                          height={40}
-                          className="rounded-full mr-3"
-                        />
                         <div className="overflow-hidden">
                           <div className="font-medium truncate">
-                            {doctor.name}
+                            {`${doctor.first_name} ${doctor.last_name}`}
                           </div>
                           <div className="text-sm text-pine truncate">
-                            {doctor.description}
+                            {doctor.short_bio}
                           </div>
                         </div>
                       </div>
@@ -404,12 +379,45 @@ export default function BookAppointment() {
                 type="button"
                 onClick={handleAIRecommendation}
                 className="w-full sm:w-auto bg-tangerine hover:bg-pine text-white"
-                disabled={isSubmitting || callingGemini}
+                disabled={isSubmitting || callingGemini || !showSummary}
               >
                 <Brain className="mr-2 h-4 w-4" />
                 Recommend
               </Button>
             </div>
+            {/* Alter section for the AI Summary */}
+            {showRecommendation && (
+              <Alert className=" border-tangerine">
+                <Brain className="h-4 w-4" />
+                <AlertTitle>
+                  Intelligent Doctor Selector{" "}
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <BadgeAlert className="h-3 w-3 inline" />
+                      </TooltipTrigger>
+                      <TooltipContent className="bg-white ">
+                        <p className="w-64 text-xs break-words">
+                          Our AI analyzes your symptoms to recommend the best
+                          doctor for your condition. Note: This is an AI
+                          suggestion and not a substitute for professional
+                          medical advice. Always consult a healthcare provider
+                          for accurate diagnosis and treatment.
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </AlertTitle>
+                <AlertDescription>
+                  {" "}
+                  Recommended Doctor:
+                  <span className="text-tangerine ">
+                    {` ${recommendation?.doctorName}`}
+                  </span>
+                  . {recommendation?.recommendation}
+                </AlertDescription>
+              </Alert>
+            )}
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
@@ -419,35 +427,22 @@ export default function BookAppointment() {
               >
                 Appointment Date
               </Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant={"outline"}
-                    className={cn(
-                      "w-full justify-start text-left font-normal",
-                      !formData.appointmentDate && "text-muted-foreground"
-                    )}
-                    disabled={isSubmitting || callingGemini}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {formData.appointmentDate ? (
-                      format(formData.appointmentDate, "PPP")
-                    ) : (
-                      <span>Pick a date</span>
-                    )}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                  <Calendar
-                    mode="single"
-                    selected={formData.appointmentDate}
-                    onSelect={(date) =>
-                      handleDateChange(date, "appointmentDate")
-                    }
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
+              <Input
+                type="date"
+                id="appointmentDate"
+                name="appointmentDate"
+                value={
+                  formData.appointmentDate
+                    ? format(formData.appointmentDate, "yyyy-MM-dd")
+                    : ""
+                }
+                onChange={(e) =>
+                  handleDateChange(new Date(e.target.value), "appointmentDate")
+                }
+                className="w-full rounded-md border-pine focus:border-tangerine focus:ring-tangerine"
+                disabled={isSubmitting || callingGemini}
+                required
+              />
             </div>
             <div className="space-y-2">
               <Label
@@ -479,7 +474,7 @@ export default function BookAppointment() {
             <Button
               type="submit"
               className="w-full sm:w-1/2 bg-tangerine hover:bg-pine text-white font-semibold py-3 rounded-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-pine focus:ring-opacity-50"
-              disabled={isSubmitting}
+              disabled={isSubmitting || callingGemini}
             >
               {isSubmitting ? (
                 <>
@@ -495,8 +490,9 @@ export default function BookAppointment() {
             </Button>
             <Button
               type="button"
-              onClick={handleCancel}
+              onClick={handleBack}
               className="w-full sm:w-1/2 bg-chiffon hover:bg-salmon text-sacramento font-semibold py-3 rounded-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none  focus:ring-2 focus:ring-salmon focus:ring-opacity-50"
+              disabled={isSubmitting || callingGemini}
             >
               Cancel
             </Button>
