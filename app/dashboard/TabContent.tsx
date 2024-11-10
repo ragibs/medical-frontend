@@ -17,33 +17,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowUpDown, Search } from "lucide-react";
+import { Doctor, Patient, Appointment } from "@/types/types";
 
-// Define the types for each dataset
-interface AppointmentData {
-  id: number;
-  patient: string;
-  doctor: string;
-  date: string;
-  time: string;
-}
-
-interface PatientData {
-  id: number;
-  name: string;
-  age: number;
-  contact: string;
-  email: string;
-}
-
-interface DoctorData {
-  id: number;
-  name: string;
-  specialization: string;
-  contact: string;
-}
-
-// Union type to account for all possible data types
-type TabData = AppointmentData | PatientData | DoctorData;
+type TabData = Appointment | Patient | Doctor;
 
 interface TabContentProps {
   tab: string;
@@ -101,16 +77,24 @@ const TabContent: React.FC<TabContentProps> = ({ tab, data }) => {
     if (data.length === 0) return null;
     return Object.keys(data[0])
       .filter((key) => key !== "id")
-      .map((key) => (
-        <TableHead
-          key={key}
-          className="cursor-pointer text-sacramento"
-          onClick={() => requestSort(key)}
-        >
-          {key.charAt(0).toUpperCase() + key.slice(1)}
-          <ArrowUpDown className="ml-2 h-4 w-4 inline" />
-        </TableHead>
-      ));
+      .map((key) => {
+        const formattedKey = key
+          .replaceAll("_", " ")
+          .split(" ")
+          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(" ");
+
+        return (
+          <TableHead
+            key={key}
+            className="cursor-pointer text-sacramento"
+            onClick={() => requestSort(key)}
+          >
+            {formattedKey}
+            <ArrowUpDown className="ml-2 h-4 w-4 inline" />
+          </TableHead>
+        );
+      });
   };
 
   const renderTableCells = (item: TabData) => {

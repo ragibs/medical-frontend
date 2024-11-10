@@ -3,8 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { UserPlus, Loader2, X } from "lucide-react";
+import { UserPlus, Loader2, X, RefreshCw, CalendarIcon } from "lucide-react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import * as z from "zod";
@@ -18,10 +17,28 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const patientSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
   lastName: z.string().min(1, "Last name is required"),
+  dob: z.date({
+    required_error: "Date of birth is required",
+  }),
   email: z.string().email("Invalid email address"),
   username: z.string().min(3, "Username must be at least 3 characters"),
   tempPassword: z.string().min(8, "Password must be at least 8 characters"),
@@ -30,8 +47,60 @@ const patientSchema = z.object({
   city: z.string().min(1, "City is required"),
   state: z.string().min(1, "State is required"),
   zipcode: z.string().min(5, "Zipcode must be at least 5 characters"),
-  dob: z.string().min(1, "Date of birth is required"),
 });
+
+const US_STATES = [
+  { label: "Alabama", value: "AL" },
+  { label: "Alaska", value: "AK" },
+  { label: "Arizona", value: "AZ" },
+  { label: "Arkansas", value: "AR" },
+  { label: "California", value: "CA" },
+  { label: "Colorado", value: "CO" },
+  { label: "Connecticut", value: "CT" },
+  { label: "Delaware", value: "DE" },
+  { label: "Florida", value: "FL" },
+  { label: "Georgia", value: "GA" },
+  { label: "Hawaii", value: "HI" },
+  { label: "Idaho", value: "ID" },
+  { label: "Illinois", value: "IL" },
+  { label: "Indiana", value: "IN" },
+  { label: "Iowa", value: "IA" },
+  { label: "Kansas", value: "KS" },
+  { label: "Kentucky", value: "KY" },
+  { label: "Louisiana", value: "LA" },
+  { label: "Maine", value: "ME" },
+  { label: "Maryland", value: "MD" },
+  { label: "Massachusetts", value: "MA" },
+  { label: "Michigan", value: "MI" },
+  { label: "Minnesota", value: "MN" },
+  { label: "Mississippi", value: "MS" },
+  { label: "Missouri", value: "MO" },
+  { label: "Montana", value: "MT" },
+  { label: "Nebraska", value: "NE" },
+  { label: "Nevada", value: "NV" },
+  { label: "New Hampshire", value: "NH" },
+  { label: "New Jersey", value: "NJ" },
+  { label: "New Mexico", value: "NM" },
+  { label: "New York", value: "NY" },
+  { label: "North Carolina", value: "NC" },
+  { label: "North Dakota", value: "ND" },
+  { label: "Ohio", value: "OH" },
+  { label: "Oklahoma", value: "OK" },
+  { label: "Oregon", value: "OR" },
+  { label: "Pennsylvania", value: "PA" },
+  { label: "Rhode Island", value: "RI" },
+  { label: "South Carolina", value: "SC" },
+  { label: "South Dakota", value: "SD" },
+  { label: "Tennessee", value: "TN" },
+  { label: "Texas", value: "TX" },
+  { label: "Utah", value: "UT" },
+  { label: "Vermont", value: "VT" },
+  { label: "Virginia", value: "VA" },
+  { label: "Washington", value: "WA" },
+  { label: "West Virginia", value: "WV" },
+  { label: "Wisconsin", value: "WI" },
+  { label: "Wyoming", value: "WY" },
+];
 
 type FormData = z.infer<typeof patientSchema>;
 
@@ -52,7 +121,6 @@ export default function AddPatientForm() {
       city: "",
       state: "",
       zipcode: "",
-      dob: "",
     },
   });
 
@@ -73,6 +141,16 @@ export default function AddPatientForm() {
 
   const handleBack = () => {
     router.push("/dashboard");
+  };
+
+  const generateRandomPassword = () => {
+    const charset =
+      "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
+    let password = "";
+    for (let i = 0; i < 12; i++) {
+      password += charset.charAt(Math.floor(Math.random() * charset.length));
+    }
+    form.setValue("tempPassword", password);
   };
 
   return (
@@ -137,6 +215,50 @@ export default function AddPatientForm() {
                 )}
               />
             </div>
+            <FormField
+              control={form.control}
+              name="dob"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel className="text-sm font-medium text-sacramento">
+                    Date of birth
+                  </FormLabel>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant={"outline"}
+                          className={cn(
+                            "w-full pl-3 text-left font-normal",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          {field.value ? (
+                            format(field.value, "PPP")
+                          ) : (
+                            <span>Pick a date</span>
+                          )}
+                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={field.value}
+                        onSelect={field.onChange}
+                        disabled={(date) =>
+                          date > new Date() || date < new Date("1915-01-01")
+                        }
+                        initialFocus
+                        defaultMonth={new Date("1990-01-01")}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
@@ -203,13 +325,22 @@ export default function AddPatientForm() {
                     <FormLabel className="text-sm font-medium text-sacramento">
                       Temporary Password
                     </FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        type="password"
-                        className="w-full rounded-md border-pine focus:border-tangerine focus:ring-tangerine"
-                      />
-                    </FormControl>
+                    <div className="flex space-x-2">
+                      <FormControl>
+                        <Input
+                          {...field}
+                          type="text"
+                          className="w-full rounded-md border-pine focus:border-tangerine focus:ring-tangerine"
+                        />
+                      </FormControl>
+                      <Button
+                        type="button"
+                        onClick={generateRandomPassword}
+                        className="bg-tangerine hover:bg-pine text-white"
+                      >
+                        <RefreshCw className="h-4 w-4" />
+                      </Button>
+                    </div>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -260,12 +391,23 @@ export default function AddPatientForm() {
                     <FormLabel className="text-sm font-medium text-sacramento">
                       State
                     </FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        className="w-full rounded-md border-pine focus:border-tangerine focus:ring-tangerine"
-                      />
-                    </FormControl>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="w-full rounded-md border-pine focus:border-tangerine focus:ring-tangerine">
+                          <SelectValue placeholder="Select a state" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {US_STATES.map((state) => (
+                          <SelectItem key={state.value} value={state.value}>
+                            {state.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -289,25 +431,6 @@ export default function AddPatientForm() {
                 )}
               />
             </div>
-            <FormField
-              control={form.control}
-              name="dob"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm font-medium text-sacramento">
-                    Date of Birth
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      {...field}
-                      type="date"
-                      className="w-full rounded-md border-pine focus:border-tangerine focus:ring-tangerine"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
             <div className="flex flex-col sm:flex-row gap-4">
               <Button
                 type="submit"

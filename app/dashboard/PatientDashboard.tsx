@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import Sidebar from "./Sidebar";
 import Header from "./DashHeader";
 import { SummaryCards } from "./SummaryCards";
@@ -10,81 +10,60 @@ import AIAssistantButton from "./AIAssistantButton";
 import { AIAssistant } from "./AIAssistant";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { motion, AnimatePresence } from "framer-motion";
-
-// Mock data
-const appointments = [
-  {
-    id: 1,
-    patient: "John Doe",
-    doctor: "Dr. Smith",
-    date: "2023-06-15",
-    time: "10:00 AM",
-  },
-  {
-    id: 2,
-    patient: "Jane Smith",
-    doctor: "Dr. Johnson",
-    date: "2023-06-16",
-    time: "2:30 PM",
-  },
-  {
-    id: 3,
-    patient: "Bob Brown",
-    doctor: "Dr. Lee",
-    date: "2023-06-17",
-    time: "11:15 AM",
-  },
-];
-
-const patients = [
-  {
-    id: 1,
-    name: "John Doe",
-    age: 35,
-    contact: "123-456-7890",
-    email: "john.doe@example.com",
-  },
-  {
-    id: 2,
-    name: "Jane Smith",
-    age: 28,
-    contact: "234-567-8901",
-    email: "jane.smith@example.com",
-  },
-  {
-    id: 3,
-    name: "Bob Brown",
-    age: 42,
-    contact: "345-678-9012",
-    email: "bob.brown@example.com",
-  },
-];
-
-const doctors = [
-  {
-    id: 1,
-    name: "Dr. Smith",
-    specialization: "Cardiology",
-    contact: "987-654-3210",
-  },
-  {
-    id: 2,
-    name: "Dr. Johnson",
-    specialization: "Pediatrics",
-    contact: "876-543-2109",
-  },
-  {
-    id: 3,
-    name: "Dr. Lee",
-    specialization: "Neurology",
-    contact: "765-432-1098",
-  },
-];
+import api from "../api/api";
+import { useUserContext } from "../context";
+import { Doctor, Patient, Appointment } from "@/types/types";
 
 const PatientDashboard = () => {
   const [activeTab, setActiveTab] = useState<string>("dashboard");
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
   const [aiAssistantOpen, setAiAssistantOpen] = useState<boolean>(false);
+  const { user } = useUserContext();
+
+  const [doctorList, setDoctorList] = useState<Doctor[]>([]);
+  const [patientList, setPatientList] = useState<Patient[]>([]);
+  const [appointmentList, setAppointmentList] = useState<Appointment[]>([]);
+
+  useEffect(() => {
+    const fetchDoctors = async () => {
+      try {
+        const response = await api.get("/getdoctors/");
+        setDoctorList(response.data);
+        console.log(doctorList);
+      } catch (error) {
+        console.error("Error fetching doctors:", error);
+      }
+    };
+
+    const fetchPatients = async () => {
+      try {
+        const response = await api.get("/getpatients/");
+        setPatientList(response.data);
+        console.log(patientList);
+      } catch (error) {
+        console.error("Error fetching patients:", error);
+      }
+    };
+
+    const fetchAppointments = async () => {
+      if (user?.role === "ADMIN") {
+        try {
+          const response = await api.get("/getappointments/");
+          setAppointmentList(response.data);
+          console.log(appointmentList);
+        } catch (error) {
+          console.error("Error fetching appointments:", error);
+        }
+      }
+    };
+
+    // Check if the user has the "ADMIN" role
+    if (user?.role === "ADMIN") {
+      fetchDoctors();
+      fetchPatients();
+      fetchAppointments();
+    }
+  }, [user]);
 
   const toggleAiAssistant = () => {
     setAiAssistantOpen(!aiAssistantOpen);
@@ -119,7 +98,7 @@ const PatientDashboard = () => {
                   <>
                     <SummaryCards />
                     <Charts />
-                    <RecentActivity appointments={appointments} />
+                    {/* <RecentActivity appointments={appointments} /> */}
                   </>
                 )}
 
@@ -147,10 +126,10 @@ const PatientDashboard = () => {
                         tab={tab}
                         data={
                           tab === "appointments"
-                            ? appointments
+                            ? appointmentList
                             : tab === "patients"
-                            ? patients
-                            : doctors
+                            ? patientList
+                            : doctorList
                         }
                       />
                     </TabsContent>

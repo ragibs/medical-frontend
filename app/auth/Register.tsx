@@ -15,8 +15,23 @@ import {
 } from "@/components/ui/form";
 import { useState } from "react";
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
-import { Loader2, UserRoundCheck } from "lucide-react";
+import { Loader2, UserRoundCheck, CalendarIcon } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 
 // List of all U.S. states with abbreviations
 const US_STATES = [
@@ -77,7 +92,9 @@ const formSchema = z
   .object({
     firstName: z.string().min(1, "First name is required"),
     lastName: z.string().min(1, "Last name is required"),
-    date_of_birth: z.string().min(1, "Date of birth is required"),
+    date_of_birth: z.date({
+      required_error: "Date of birth is required",
+    }),
     username: z.string().min(1, "Username is required"),
     address: z.string().min(1, "Address is required"),
     city: z.string().min(1, "City is required"),
@@ -111,13 +128,12 @@ const formatPhoneNumber = (value: string) => {
   return value;
 };
 
-const Register = () => {
+export default function Register() {
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       firstName: "",
       lastName: "",
-      date_of_birth: "",
       username: "",
       address: "",
       city: "",
@@ -132,7 +148,6 @@ const Register = () => {
 
   const [submitted, setSubmitted] = useState(false);
   const [submitMessage, setSubmitMessage] = useState("");
-
   const [formSubmitting, setFormSubmitting] = useState(false);
 
   const onSubmit = async (data: FormData) => {
@@ -148,7 +163,7 @@ const Register = () => {
       city: data.city,
       state: data.state,
       zipcode: data.zipcode,
-      date_of_birth: data.date_of_birth,
+      date_of_birth: format(data.date_of_birth, "yyyy-MM-dd"),
     };
 
     setFormSubmitting(true);
@@ -227,22 +242,45 @@ const Register = () => {
               control={form.control}
               name="date_of_birth"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="flex flex-col">
                   <FormLabel>Date of Birth</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="date"
-                      min="1924-01-01"
-                      placeholder="Select your date of birth"
-                      {...field}
-                      className=" rounded-md border-gray-300 shadow-sm focus:border-tangerine focus:ring-tangerine w-44"
-                      disabled={formSubmitting}
-                    />
-                  </FormControl>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant={"outline"}
+                          className={cn(
+                            "w-[240px] pl-3 text-left font-normal",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          {field.value ? (
+                            format(field.value, "PPP")
+                          ) : (
+                            <span>Pick a date</span>
+                          )}
+                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={field.value}
+                        onSelect={field.onChange}
+                        disabled={(date) =>
+                          date > new Date() || date < new Date("1915-01-01")
+                        }
+                        initialFocus
+                        defaultMonth={new Date("1990-01-01")}
+                      />
+                    </PopoverContent>
+                  </Popover>
                   <FormMessage className="text-red-500" />
                 </FormItem>
               )}
             />
+
             {/* Email */}
             <FormField
               control={form.control}
@@ -263,6 +301,7 @@ const Register = () => {
                 </FormItem>
               )}
             />
+
             {/* Username */}
             <FormField
               control={form.control}
@@ -282,6 +321,7 @@ const Register = () => {
                 </FormItem>
               )}
             />
+
             {/* Phone */}
             <FormField
               control={form.control}
@@ -293,7 +333,7 @@ const Register = () => {
                     <Input
                       type="tel"
                       placeholder="Enter your phone number"
-                      value={formatPhoneNumber(field.value)} // Apply formatting
+                      value={formatPhoneNumber(field.value)}
                       onChange={(e) =>
                         field.onChange(formatPhoneNumber(e.target.value))
                       }
@@ -348,25 +388,28 @@ const Register = () => {
 
             {/* State Selector */}
             <FormField
-              disabled={formSubmitting}
               control={form.control}
               name="state"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>State</FormLabel>
-                  <FormControl>
-                    <select
-                      {...field}
-                      className="w-full h-[44px] rounded-md border-gray-300 shadow-sm focus:border-tangerine focus:ring-tangerine px-4 py-2 text-sm"
-                    >
-                      <option value="">Select a state</option>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger className="w-full rounded-md border-gray-300 shadow-sm focus:border-tangerine focus:ring-tangerine">
+                        <SelectValue placeholder="Select a state" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
                       {US_STATES.map((state) => (
-                        <option key={state.value} value={state.value}>
+                        <SelectItem key={state.value} value={state.value}>
                           {state.label}
-                        </option>
+                        </SelectItem>
                       ))}
-                    </select>
-                  </FormControl>
+                    </SelectContent>
+                  </Select>
                   <FormMessage className="text-red-500" />
                 </FormItem>
               )}
@@ -460,13 +503,11 @@ const Register = () => {
           />
           <Alert className=" border-tangerine ">
             <UserRoundCheck className="h-4 w-4" />
-            <AlertTitle>You’re All Set!</AlertTitle>
+            <AlertTitle>You're All Set!</AlertTitle>
             <AlertDescription>{submitMessage}</AlertDescription>
           </Alert>
         </div>
       )}
     </>
   );
-};
-
-export default Register;
+}

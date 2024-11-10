@@ -5,7 +5,7 @@ import PatientDashboard from "./PatientDashboard";
 import DoctorDashboard from "./DoctorDashboard";
 
 const Dashboard = () => {
-  return <AdminDashboard />;
+  return <PatientDashboard />;
 };
 
 export default Dashboard;
