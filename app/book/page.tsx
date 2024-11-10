@@ -35,61 +35,83 @@ import { useUserContext } from "@/app/context";
 import api from "../api/api";
 import { useRouter } from "next/navigation";
 import { Doctor, Recommendation } from "@/types/types";
+import { z } from "zod";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
 
-const appointmentTimes = [
-  "09:00",
-  "10:00",
-  "11:00",
-  "12:00",
-  "13:00",
-  "14:00",
-  "15:00",
-  "16:00",
-  "17:00",
-];
+const appointmentSchema = z.object({
+  firstName: z.string().min(1, "First name is required"),
+  lastName: z.string().min(1, "Last name is required"),
+  username: z.string().min(1, "Username is required"),
+  email: z.string().email("Invalid email address"),
+  symptoms: z.string().min(1, "Symptoms are required"),
+  doctor: z.string().min(1, "Doctor selection is required"),
+  appointmentDate: z.date({
+    required_error: "Appointment date is required",
+    invalid_type_error: "That's not a date!",
+  }),
+  appointmentTime: z.string().min(1, "Appointment time is required"),
+});
+
+type FormData = z.infer<typeof appointmentSchema>;
 
 export default function BookAppointment() {
   const { user } = useUserContext();
   const router = useRouter();
-
-  const [formData, setFormData] = useState({
-    firstName: user?.first_name || "",
-    lastName: user?.last_name || "",
-    username: user?.username || "",
-    email: user?.email || "",
-    symptoms: "",
-    doctor: "",
-    appointmentDate: undefined as Date | undefined,
-    appointmentTime: "",
-  });
-
-  useEffect(() => {
-    if (user) {
-      setFormData({
-        firstName: user.first_name,
-        lastName: user.last_name,
-        username: user.username,
-        email: user.email,
-        symptoms: "",
-        doctor: "",
-        appointmentDate: undefined,
-        appointmentTime: "",
-      });
-    }
-  }, [user]);
+  const { toast } = useToast();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [callingGemini, setCallingGemini] = useState(false);
-  // Gemini States
   const [showSummary, setShowSummary] = useState(false);
   const [summary, setSummary] = useState("");
-  const [prompt, setPrompt] = useState<string>("");
   const [showRecommendation, setShowRecommendation] = useState(false);
   const [recommendation, setRecommendation] = useState<Recommendation | null>(
     null
   );
-
   const [doctors, setDoctors] = useState<Doctor[]>([]);
+  const [availableTimes, setAvailableTimes] = useState<string[]>([]);
+  const [fetchingTimes, setFetchingTimes] = useState(false);
+
+  const {
+    control,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors },
+  } = useForm<FormData>({
+    resolver: zodResolver(appointmentSchema),
+    defaultValues: {
+      firstName: user?.first_name || "",
+      lastName: user?.last_name || "",
+      username: user?.username || "",
+      email: user?.email || "",
+      symptoms: "",
+      doctor: "",
+      appointmentDate: undefined,
+      appointmentTime: "",
+    },
+  });
+
+  const symptoms = watch("symptoms");
+  const selectedDoctor = watch("doctor");
+  const selectedDate = watch("appointmentDate");
+
+  useEffect(() => {
+    if (user) {
+      setValue("firstName", user.first_name);
+      setValue("lastName", user.last_name);
+      setValue("username", user.username);
+      setValue("email", user.email);
+    }
+  }, [user, setValue]);
 
   useEffect(() => {
     const fetchDoctors = async () => {
@@ -104,35 +126,56 @@ export default function BookAppointment() {
     fetchDoctors();
   }, []);
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prevState) => ({ ...prevState, [name]: value }));
-    if (name === "symptoms") {
-      setPrompt(value);
-    }
-  };
+  useEffect(() => {
+    const fetchAvailableTimes = async () => {
+      if (selectedDoctor && selectedDate) {
+        setFetchingTimes(true);
+        try {
+          const formattedDate = format(selectedDate, "yyyy-MM-dd");
+          const response = await api.get(
+            `http://127.0.0.1:8000/doctors/${selectedDoctor}/available-slots/${formattedDate}/`
+          );
+          setAvailableTimes(response.data.available_slots);
+        } catch (error) {
+          console.error("Error fetching available times:", error);
+          setAvailableTimes([]);
+        } finally {
+          setFetchingTimes(false);
+        }
+      }
+    };
 
-  const handleDateChange = (
-    date: Date | undefined,
-    field: "dob" | "appointmentDate"
-  ) => {
-    setFormData((prevState) => ({ ...prevState, [field]: date }));
-  };
+    fetchAvailableTimes();
+  }, [selectedDoctor, selectedDate]);
 
-  const handleDoctorChange = (value: string) => {
-    setFormData((prevState) => ({ ...prevState, doctor: value }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSubmit = async (data: FormData) => {
     setIsSubmitting(true);
-    // Simulating an API call
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    console.log("Appointment booked:", formData);
-    setIsSubmitting(false);
-    // Here you would typically send the form data to your backend
+
+    try {
+      const payload = {
+        doctor_id: data.doctor,
+        booking_date: format(data.appointmentDate, "yyyy-MM-dd"),
+        booking_time: data.appointmentTime,
+        symptoms: data.symptoms,
+        ai_summarized_symptoms: summary,
+      };
+
+      const response = await api.post("/make/appointment/", payload);
+      toast({
+        title: "Appointment Scheduled",
+        description: `Doctor: ${
+          doctors.find((doc) => doc.id === Number(data.doctor))?.first_name
+        } ${doctors.find((doc) => doc.id === Number(data.doctor))?.last_name}
+        
+        Date: ${format(data.appointmentDate, "EEEE, MMMM dd, yyyy")}
+        Time: ${data.appointmentTime}`,
+      });
+      router.push("/dashboard");
+    } catch (error) {
+      console.error("Error booking appointment:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleAISummarize = async (e: React.FormEvent) => {
@@ -140,7 +183,7 @@ export default function BookAppointment() {
     setCallingGemini(true);
 
     try {
-      const text = await summarizeSymptoms(prompt);
+      const text = await summarizeSymptoms(symptoms);
       setSummary(text || "Error generating text.");
     } catch (error) {
       console.error("Error:", error);
@@ -157,10 +200,7 @@ export default function BookAppointment() {
       const recommendObject = await recommendDoctor(doctors, summary);
       setRecommendation(recommendObject);
       if (recommendObject?.doctorId) {
-        setFormData((prevState) => ({
-          ...prevState,
-          doctor: recommendObject.doctorId,
-        }));
+        setValue("doctor", recommendObject.doctorId);
       }
     } catch (error) {
       console.error("Error: ", error);
@@ -196,7 +236,7 @@ export default function BookAppointment() {
             Book an Appointment
           </h1>
         </div>
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label
@@ -205,15 +245,23 @@ export default function BookAppointment() {
               >
                 First Name
               </Label>
-              <Input
-                id="firstName"
+              <Controller
                 name="firstName"
-                value={formData.firstName}
-                onChange={handleChange}
-                required
-                className="w-full rounded-md border-pine focus:border-tangerine focus:ring-tangerine"
-                disabled
+                control={control}
+                render={({ field }) => (
+                  <Input
+                    {...field}
+                    id="firstName"
+                    className="w-full rounded-md border-pine focus:border-tangerine focus:ring-tangerine"
+                    disabled
+                  />
+                )}
               />
+              {errors.firstName && (
+                <p className="text-red-500 text-sm">
+                  {errors.firstName.message}
+                </p>
+              )}
             </div>
             <div className="space-y-2">
               <Label
@@ -222,38 +270,50 @@ export default function BookAppointment() {
               >
                 Last Name
               </Label>
-              <Input
-                id="lastName"
+              <Controller
                 name="lastName"
-                value={formData.lastName}
-                onChange={handleChange}
-                required
-                className="w-full rounded-md border-pine focus:border-tangerine focus:ring-tangerine"
-                placeholder="Doe"
-                disabled
+                control={control}
+                render={({ field }) => (
+                  <Input
+                    {...field}
+                    id="lastName"
+                    className="w-full rounded-md border-pine focus:border-tangerine focus:ring-tangerine"
+                    disabled
+                  />
+                )}
               />
+              {errors.lastName && (
+                <p className="text-red-500 text-sm">
+                  {errors.lastName.message}
+                </p>
+              )}
             </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label
-                htmlFor="phone"
+                htmlFor="username"
                 className="text-sm font-medium text-sacramento"
               >
                 Username
               </Label>
-              <div className="flex">
-                <Input
-                  id="username"
-                  name="username"
-                  value={formData.username}
-                  onChange={handleChange}
-                  required
-                  className="w-full rounded-md border-pine focus:border-tangerine focus:ring-tangerine"
-                  placeholder="(123) 456-7890"
-                  disabled
-                />
-              </div>
+              <Controller
+                name="username"
+                control={control}
+                render={({ field }) => (
+                  <Input
+                    {...field}
+                    id="username"
+                    className="w-full rounded-md border-pine focus:border-tangerine focus:ring-tangerine"
+                    disabled
+                  />
+                )}
+              />
+              {errors.username && (
+                <p className="text-red-500 text-sm">
+                  {errors.username.message}
+                </p>
+              )}
             </div>
             <div className="space-y-2">
               <Label
@@ -262,19 +322,22 @@ export default function BookAppointment() {
               >
                 Email
               </Label>
-              <div className="flex">
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  required
-                  className="w-full rounded-md border-pine focus:border-tangerine focus:ring-tangerine"
-                  placeholder="john@example.com"
-                  disabled
-                />
-              </div>
+              <Controller
+                name="email"
+                control={control}
+                render={({ field }) => (
+                  <Input
+                    {...field}
+                    id="email"
+                    type="email"
+                    className="w-full rounded-md border-pine focus:border-tangerine focus:ring-tangerine"
+                    disabled
+                  />
+                )}
+              />
+              {errors.email && (
+                <p className="text-red-500 text-sm">{errors.email.message}</p>
+              )}
             </div>
           </div>
           <div className="space-y-2">
@@ -284,22 +347,27 @@ export default function BookAppointment() {
             >
               Symptoms
             </Label>
-            <Textarea
-              id="symptoms"
+            <Controller
               name="symptoms"
-              value={formData.symptoms}
-              onChange={handleChange}
-              className="w-full rounded-md border-pine focus:border-tangerine focus:ring-tangerine min-h-[100px]"
-              placeholder="Describe your symptoms..."
-              disabled={isSubmitting || callingGemini}
+              control={control}
+              render={({ field }) => (
+                <Textarea
+                  {...field}
+                  id="symptoms"
+                  className="w-full rounded-md border-pine focus:border-tangerine focus:ring-tangerine min-h-[100px]"
+                  placeholder="Describe your symptoms..."
+                  disabled={isSubmitting || callingGemini}
+                />
+              )}
             />
+            {errors.symptoms && (
+              <p className="text-red-500 text-sm">{errors.symptoms.message}</p>
+            )}
             <Button
               type="button"
               onClick={handleAISummarize}
               className="w-full sm:w-auto mt-2 bg-tangerine hover:bg-pine text-white"
-              disabled={
-                isSubmitting || callingGemini || formData.symptoms.length <= 0
-              }
+              disabled={isSubmitting || callingGemini || !symptoms}
             >
               {callingGemini ? (
                 <>
@@ -314,9 +382,8 @@ export default function BookAppointment() {
               )}
             </Button>
           </div>
-          {/* Alter section for the AI Summary */}
           {showSummary && (
-            <Alert className=" border-tangerine">
+            <Alert className="border-tangerine">
               <Brain className="h-4 w-4" />
               <AlertTitle>
                 Intelligent Symptom Summary
@@ -325,9 +392,9 @@ export default function BookAppointment() {
                     <TooltipTrigger>
                       <BadgeAlert className="h-3 w-3 inline" />
                     </TooltipTrigger>
-                    <TooltipContent className="bg-white ">
+                    <TooltipContent className="bg-white">
                       <p className="w-64 text-xs break-words">
-                        Our AI analyze and condense the list of symptoms you’ve
+                        Our AI analyze and condense the list of symptoms you've
                         entered into a brief, easy-to-understand summary. This
                         can help your healthcare provider quickly grasp the key
                         details of your condition.
@@ -347,34 +414,41 @@ export default function BookAppointment() {
               Choose a Doctor
             </Label>
             <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 pb-2">
-              <Select
-                onValueChange={handleDoctorChange}
-                disabled={isSubmitting || callingGemini}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select a doctor" />
-                </SelectTrigger>
-                <SelectContent className="bg-chiffon">
-                  {doctors?.map((doctor) => (
-                    <SelectItem
-                      key={doctor.id}
-                      value={String(doctor.id)}
-                      className=" hover:bg-salmon cursor-pointer"
-                    >
-                      <div className="flex items-center">
-                        <div className="overflow-hidden">
-                          <div className="font-medium truncate">
-                            {`${doctor.first_name} ${doctor.last_name}`}
+              <Controller
+                name="doctor"
+                control={control}
+                render={({ field }) => (
+                  <Select
+                    onValueChange={field.onChange}
+                    value={field.value}
+                    disabled={isSubmitting || callingGemini}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select a doctor" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-chiffon">
+                      {doctors?.map((doctor) => (
+                        <SelectItem
+                          key={doctor.id}
+                          value={String(doctor.id)}
+                          className="hover:bg-salmon cursor-pointer"
+                        >
+                          <div className="flex items-center">
+                            <div className="overflow-hidden">
+                              <div className="font-medium truncate">
+                                {`${doctor.first_name} ${doctor.last_name}`}
+                              </div>
+                              <div className="text-sm text-pine truncate">
+                                {doctor.short_bio}
+                              </div>
+                            </div>
                           </div>
-                          <div className="text-sm text-pine truncate">
-                            {doctor.short_bio}
-                          </div>
-                        </div>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
               <Button
                 type="button"
                 onClick={handleAIRecommendation}
@@ -385,9 +459,11 @@ export default function BookAppointment() {
                 Recommend
               </Button>
             </div>
-            {/* Alter section for the AI Summary */}
+            {errors.doctor && (
+              <p className="text-red-500 text-sm">{errors.doctor.message}</p>
+            )}
             {showRecommendation && (
-              <Alert className=" border-tangerine">
+              <Alert className="border-tangerine">
                 <Brain className="h-4 w-4" />
                 <AlertTitle>
                   Intelligent Doctor Selector{" "}
@@ -396,7 +472,7 @@ export default function BookAppointment() {
                       <TooltipTrigger>
                         <BadgeAlert className="h-3 w-3 inline" />
                       </TooltipTrigger>
-                      <TooltipContent className="bg-white ">
+                      <TooltipContent className="bg-white">
                         <p className="w-64 text-xs break-words">
                           Our AI analyzes your symptoms to recommend the best
                           doctor for your condition. Note: This is an AI
@@ -409,9 +485,8 @@ export default function BookAppointment() {
                   </TooltipProvider>
                 </AlertTitle>
                 <AlertDescription>
-                  {" "}
                   Recommended Doctor:
-                  <span className="text-tangerine ">
+                  <span className="text-tangerine">
                     {` ${recommendation?.doctorName}`}
                   </span>
                   . {recommendation?.recommendation}
@@ -427,22 +502,53 @@ export default function BookAppointment() {
               >
                 Appointment Date
               </Label>
-              <Input
-                type="date"
-                id="appointmentDate"
+              <Controller
                 name="appointmentDate"
-                value={
-                  formData.appointmentDate
-                    ? format(formData.appointmentDate, "yyyy-MM-dd")
-                    : ""
-                }
-                onChange={(e) =>
-                  handleDateChange(new Date(e.target.value), "appointmentDate")
-                }
-                className="w-full rounded-md border-pine focus:border-tangerine focus:ring-tangerine"
-                disabled={isSubmitting || callingGemini}
-                required
+                control={control}
+                render={({ field }) => (
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant={"outline"}
+                        className={cn(
+                          "w-full justify-start text-left font-normal",
+                          !field.value && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {field.value ? (
+                          format(field.value, "PPP")
+                        ) : (
+                          <span>Pick a date</span>
+                        )}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={field.value}
+                        onSelect={(date) => {
+                          field.onChange(date);
+                          setValue("appointmentTime", "");
+                        }}
+                        disabled={(date) =>
+                          date < new Date() ||
+                          date >
+                            new Date(
+                              new Date().setMonth(new Date().getMonth() + 3)
+                            )
+                        }
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                )}
               />
+              {errors.appointmentDate && (
+                <p className="text-red-500 text-sm">
+                  {errors.appointmentDate.message}
+                </p>
+              )}
             </div>
             <div className="space-y-2">
               <Label
@@ -451,23 +557,49 @@ export default function BookAppointment() {
               >
                 Appointment Time
               </Label>
-              <Select
-                onValueChange={(value) =>
-                  setFormData((prev) => ({ ...prev, appointmentTime: value }))
-                }
-                disabled={isSubmitting || callingGemini}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select a time" />
-                </SelectTrigger>
-                <SelectContent className="bg-chiffon">
-                  {appointmentTimes.map((time) => (
-                    <SelectItem key={time} value={time}>
-                      {time}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Controller
+                name="appointmentTime"
+                control={control}
+                render={({ field }) => (
+                  <Select
+                    onValueChange={field.onChange}
+                    value={field.value}
+                    disabled={
+                      isSubmitting ||
+                      callingGemini ||
+                      fetchingTimes ||
+                      !selectedDoctor ||
+                      !selectedDate
+                    }
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select a time" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-chiffon">
+                      {fetchingTimes ? (
+                        <SelectItem value="null" disabled>
+                          Loading available times...
+                        </SelectItem>
+                      ) : availableTimes.length > 0 ? (
+                        availableTimes.map((time) => (
+                          <SelectItem key={time} value={time}>
+                            {time}
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <SelectItem value="null" disabled>
+                          No available times
+                        </SelectItem>
+                      )}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+              {errors.appointmentTime && (
+                <p className="text-red-500 text-sm">
+                  {errors.appointmentTime.message}
+                </p>
+              )}
             </div>
           </div>
           <div className="flex flex-col sm:flex-row gap-4">
@@ -491,7 +623,7 @@ export default function BookAppointment() {
             <Button
               type="button"
               onClick={handleBack}
-              className="w-full sm:w-1/2 bg-chiffon hover:bg-salmon text-sacramento font-semibold py-3 rounded-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none  focus:ring-2 focus:ring-salmon focus:ring-opacity-50"
+              className="w-full sm:w-1/2 bg-chiffon hover:bg-salmon text-sacramento font-semibold py-3 rounded-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-salmon focus:ring-opacity-50"
               disabled={isSubmitting || callingGemini}
             >
               Cancel

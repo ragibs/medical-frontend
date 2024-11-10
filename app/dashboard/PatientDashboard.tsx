@@ -24,53 +24,88 @@ const PatientDashboard = () => {
   const [patientList, setPatientList] = useState<Patient[]>([]);
   const [appointmentList, setAppointmentList] = useState<Appointment[]>([]);
 
+  const fetchDoctors = async () => {
+    try {
+      const response = await api.get("/getdoctors/");
+      setDoctorList(response.data);
+      console.log("Fetched Doctors:", response.data);
+    } catch (error) {
+      console.error("Error fetching doctors:", error);
+    }
+  };
+
+  const fetchPatients = async () => {
+    try {
+      const response = await api.get("/getpatients/");
+      setPatientList(response.data);
+      console.log("Fetched Patients:", response.data);
+    } catch (error) {
+      console.error("Error fetching patients:", error);
+    }
+  };
+
+  const fetchAllAppointments = async () => {
+    try {
+      const response = await api.get("/view/all-appointments/");
+      setAppointmentList(response.data);
+      console.log("Fetched All Appointments:", response.data);
+    } catch (error) {
+      console.error("Error fetching all appointments:", error);
+    }
+  };
+
+  const fetchPatientAppointments = async () => {
+    try {
+      if (user?.id) {
+        const response = await api.get(`/view/patient-appointment/${user.id}/`);
+        setAppointmentList(response.data);
+        console.log("Fetched Patient Appointments:", response.data);
+      }
+    } catch (error) {
+      console.error("Error fetching patient appointments:", error);
+    }
+  };
+
+  const fetchDoctorAppointments = async () => {
+    try {
+      if (user?.id) {
+        const response = await api.get(`/view/doctor-appointment/${user.id}/`);
+        setAppointmentList(response.data);
+        console.log("Fetched Doctor Appointments:", response.data);
+      }
+    } catch (error) {
+      console.error("Error fetching doctor appointments:", error);
+    }
+  };
+
   useEffect(() => {
-    const fetchDoctors = async () => {
-      try {
-        const response = await api.get("/getdoctors/");
-        setDoctorList(response.data);
-        console.log(doctorList);
-      } catch (error) {
-        console.error("Error fetching doctors:", error);
-      }
-    };
-
-    const fetchPatients = async () => {
-      try {
-        const response = await api.get("/getpatients/");
-        setPatientList(response.data);
-        console.log(patientList);
-      } catch (error) {
-        console.error("Error fetching patients:", error);
-      }
-    };
-
-    const fetchAppointments = async () => {
-      if (user?.role === "ADMIN") {
-        try {
-          const response = await api.get("/getappointments/");
-          setAppointmentList(response.data);
-          console.log(appointmentList);
-        } catch (error) {
-          console.error("Error fetching appointments:", error);
-        }
-      }
-    };
-
-    // Check if the user has the "ADMIN" role
     if (user?.role === "ADMIN") {
+      setActiveTab("dashboard");
       fetchDoctors();
       fetchPatients();
-      fetchAppointments();
+      fetchAllAppointments();
+    } else if (user?.role === "PATIENT") {
+      setActiveTab("appointments");
+      fetchPatientAppointments();
+    } else if (user?.role === "DOCTOR") {
+      setActiveTab("appointments");
+      fetchDoctorAppointments();
     }
   }, [user]);
 
   const toggleAiAssistant = () => {
-    setAiAssistantOpen(!aiAssistantOpen);
+    setAiAssistantOpen((prev) => !prev);
+
     if (!aiAssistantOpen) {
       setActiveTab("ai-assistant");
     } else {
-      setActiveTab("dashboard");
+      if (user?.role === "ADMIN") {
+        setActiveTab("dashboard");
+      } else if (user?.role === "DOCTOR" || user?.role === "PATIENT") {
+        setActiveTab("appointments");
+      } else {
+        setActiveTab("dashboard");
+      }
     }
   };
 
@@ -124,6 +159,7 @@ const PatientDashboard = () => {
                     <TabsContent key={tab} value={tab}>
                       <TabContent
                         tab={tab}
+                        fetchPatientAppointments={fetchPatientAppointments}
                         data={
                           tab === "appointments"
                             ? appointmentList

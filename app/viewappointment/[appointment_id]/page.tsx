@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -8,31 +8,48 @@ import { Label } from "@/components/ui/label";
 import { Calendar, X, Edit, Save } from "lucide-react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { format } from "date-fns";
+import { useParams } from "next/navigation";
+import api from "@/app/api/api";
 
 export default function ViewAppointment() {
   const router = useRouter();
   const [isEditingNotes, setIsEditingNotes] = useState(false);
   const [notes, setNotes] = useState("No notes added yet.");
+  const { appointment_id } = useParams();
+  const [appointmentData, setAppointmentData] =
+    useState<AppointmentData | null>(null);
 
-  // Dummy data
-  const appointmentData = {
-    patientName: "John Doe",
-    doctorName: "Dr. Jane Smith",
-    date: new Date("2023-06-15"),
-    time: "10:00 AM",
-    symptoms: "Persistent headache and dizziness",
-    aiSummarizedSymptoms:
-      "Patient reports chronic cephalgia with associated vertigo, potentially indicating underlying neurological concerns.",
-    createdAt: new Date("2023-06-10"),
+  type AppointmentData = {
+    patient_name: string;
+    doctor_name: string;
+    date: string; // e.g., "2024-12-08"
+    time: string; // e.g., "16:30:00"
+    symptoms: string;
+    ai_summarized_symptoms: string;
+    notes: string;
+    created_at: string; // ISO date string e.g., "2024-11-10T17:13:16.304504Z"
   };
+
+  useEffect(() => {
+    const fetchPatientAppointments = async () => {
+      try {
+        if (appointment_id) {
+          const response = await api.get(`appointments/${appointment_id}/`);
+          setAppointmentData(response.data);
+        }
+      } catch (error) {
+        console.error("Error fetching patient appointments:", error);
+      }
+    };
+
+    fetchPatientAppointments();
+  }, [appointment_id]);
 
   const handleBack = () => {
     router.push("/dashboard");
   };
 
   const handleCancelAppointment = () => {
-    // Implement appointment cancellation logic here
     console.log("Appointment cancelled");
     router.push("/dashboard");
   };
@@ -78,7 +95,7 @@ export default function ViewAppointment() {
               </Label>
               <Input
                 id="patientName"
-                value={appointmentData.patientName}
+                value={appointmentData?.patient_name}
                 readOnly
                 className="w-full rounded-md border-pine focus:border-tangerine focus:ring-tangerine bg-chiffon"
               />
@@ -92,7 +109,7 @@ export default function ViewAppointment() {
               </Label>
               <Input
                 id="doctorName"
-                value={appointmentData.doctorName}
+                value={appointmentData?.doctor_name}
                 readOnly
                 className="w-full rounded-md border-pine focus:border-tangerine focus:ring-tangerine bg-chiffon"
               />
@@ -108,7 +125,7 @@ export default function ViewAppointment() {
               </Label>
               <Input
                 id="date"
-                value={format(appointmentData.date, "MMMM d, yyyy")}
+                value={appointmentData?.date}
                 readOnly
                 className="w-full rounded-md border-pine focus:border-tangerine focus:ring-tangerine bg-chiffon"
               />
@@ -122,7 +139,7 @@ export default function ViewAppointment() {
               </Label>
               <Input
                 id="time"
-                value={appointmentData.time}
+                value={appointmentData?.time}
                 readOnly
                 className="w-full rounded-md border-pine focus:border-tangerine focus:ring-tangerine bg-chiffon"
               />
@@ -137,7 +154,7 @@ export default function ViewAppointment() {
             </Label>
             <Textarea
               id="symptoms"
-              value={appointmentData.symptoms}
+              value={appointmentData?.symptoms}
               readOnly
               className="w-full rounded-md border-pine focus:border-tangerine focus:ring-tangerine bg-chiffon min-h-[100px]"
             />
@@ -151,7 +168,7 @@ export default function ViewAppointment() {
             </Label>
             <Textarea
               id="aiSummarizedSymptoms"
-              value={appointmentData.aiSummarizedSymptoms}
+              value={appointmentData?.ai_summarized_symptoms}
               readOnly
               className="w-full rounded-md border-pine focus:border-tangerine focus:ring-tangerine bg-chiffon min-h-[100px]"
             />
@@ -201,10 +218,7 @@ export default function ViewAppointment() {
             </Label>
             <Input
               id="createdAt"
-              value={format(
-                appointmentData.createdAt,
-                "MMMM d, yyyy 'at' h:mm a"
-              )}
+              value={appointmentData?.created_at}
               readOnly
               className="w-full rounded-md border-pine focus:border-tangerine focus:ring-tangerine bg-chiffon"
             />

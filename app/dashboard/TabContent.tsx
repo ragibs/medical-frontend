@@ -18,15 +18,38 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowUpDown, Search } from "lucide-react";
 import { Doctor, Patient, Appointment } from "@/types/types";
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog";
+import { useToast } from "@/hooks/use-toast";
+import api from "../api/api";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { useUserContext } from "@/app/context";
 
 type TabData = Appointment | Patient | Doctor;
 
 interface TabContentProps {
   tab: string;
   data: TabData[];
+  fetchPatientAppointments: () => Promise<void>;
 }
 
-const TabContent: React.FC<TabContentProps> = ({ tab, data }) => {
+const TabContent: React.FC<TabContentProps> = ({
+  tab,
+  data,
+  fetchPatientAppointments,
+}) => {
+  const { user } = useUserContext();
+
   const [searchTerm, setSearchTerm] = useState("");
   const [sortConfig, setSortConfig] = useState<{
     key: string;
@@ -35,6 +58,50 @@ const TabContent: React.FC<TabContentProps> = ({ tab, data }) => {
     key: "",
     direction: "",
   });
+
+  const mangeButton = (appointmentId: number) => {
+    if (user?.role === "PATIENT") {
+      return (
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button
+              size="sm"
+              className="text-pine bg-tangerine hover:bg-salmon"
+            >
+              Cancel
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent className="bg-chiffon">
+            <AlertDialogHeader>
+              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to cancel this appointment? This action
+                cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel className="bg-salmon">Close</AlertDialogCancel>
+              <AlertDialogAction
+                className="bg-red-600"
+                onClick={() => handleCancelAppointment(appointmentId)}
+              >
+                {isCancelling ? "Cancelling..." : "Confirm"}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      );
+    }
+
+    // For Admins and Doctors
+    return (
+      <Link href={`/viewappointment/${appointmentId}`}>
+        <Button size="sm" className="text-pine bg-tangerine hover:bg-salmon">
+          {tab === "appointments" ? "Manage" : "Contact"}
+        </Button>
+      </Link>
+    );
+  };
 
   // Sorting logic
   const sortedData = useMemo(() => {
@@ -103,6 +170,30 @@ const TabContent: React.FC<TabContentProps> = ({ tab, data }) => {
       .map(([key, value]) => <TableCell key={key}>{value}</TableCell>);
   };
 
+  const [isCancelling, setIsCancelling] = useState(false);
+  const { toast } = useToast();
+  const router = useRouter();
+
+  const handleCancelAppointment = async (appointmentId: number) => {
+    setIsCancelling(true);
+    try {
+      await api.delete(`/deleteappointment/${appointmentId}/`);
+      toast({
+        title: "Appointment Cancelled",
+        description: "Your appointment has been successfully cancelled.",
+      });
+      await fetchPatientAppointments();
+    } catch (error) {
+      console.error("Error cancelling appointment:", error);
+      toast({
+        title: "Error",
+        description: "Failed to cancel the appointment.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsCancelling(false);
+    }
+  };
   return (
     <Card>
       <CardHeader>
@@ -137,14 +228,7 @@ const TabContent: React.FC<TabContentProps> = ({ tab, data }) => {
             {filteredData.map((item) => (
               <TableRow key={item.id}>
                 {renderTableCells(item)}
-                <TableCell>
-                  <Button
-                    size="sm"
-                    className="text-pine bg-tangerine hover:bg-salmon"
-                  >
-                    {tab === "appointments" ? "Manage" : "Contact"}
-                  </Button>
-                </TableCell>
+                <TableCell>{mangeButton(item.id)}</TableCell>
               </TableRow>
             ))}
           </TableBody>
