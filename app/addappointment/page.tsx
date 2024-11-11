@@ -162,7 +162,9 @@ export default function BookAppointmentForm() {
         ai_summarized_symptoms: summary,
       };
 
-      const response = await api.post("/make/appointment/", payload);
+      console.log(payload);
+
+      const response = await api.post("make/appointment/", payload);
 
       toast({
         title: "Appointment Scheduled",

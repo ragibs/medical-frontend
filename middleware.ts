@@ -2,19 +2,67 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 export function middleware(request: NextRequest) {
-  // Fetch access token from cookies
-  const accessToken = request.cookies.get("medappapi_access_token"); // Ensure this matches your actual cookie name
+  const accessToken = request.cookies.get("medappapi_access_token")?.value;
 
-  // If no access token, redirect to the login page
+  const userCookie = request.cookies.get("medappapi_user")?.value;
+
   if (!accessToken) {
     return NextResponse.redirect(new URL("/auth", request.url));
   }
 
-  // Proceed to the requested route
+  let userRole: string | null = null;
+  if (userCookie) {
+    try {
+      const user = JSON.parse(userCookie);
+      userRole = user.role;
+    } catch (error) {
+      console.error("Failed to parse user cookie:", error);
+    }
+  }
+
+  if (!userRole) {
+    return NextResponse.redirect(new URL("/auth", request.url));
+  }
+
+  const pathname = request.nextUrl.pathname;
+
+  if (
+    userRole === "PATIENT" &&
+    [
+      "/addadmin",
+      "/adddoctor",
+      "/addpatient",
+      "/viewappointments",
+      "/addappointment",
+    ].some((path) => pathname.startsWith(path))
+  ) {
+    return NextResponse.redirect(new URL("/dashboard", request.url));
+  }
+
+  if (
+    userRole === "DOCTOR" &&
+    ["/adddoctor", "/addpatient", "/addappointment", "/book"].some((path) =>
+      pathname.startsWith(path)
+    )
+  ) {
+    return NextResponse.redirect(new URL("/dashboard", request.url));
+  }
+
+  if (userRole === "ADMIN" && pathname.startsWith("/book")) {
+    return NextResponse.redirect(new URL("/dashboard", request.url));
+  }
+
   return NextResponse.next();
 }
 
-// Apply middleware to protected routes (e.g., dashboard, booking)
 export const config = {
-  matcher: ["/dashboard/:path*", "/book/:path*"], // Matches all sub-paths within /dashboard and /book
+  matcher: [
+    "/dashboard/:path*",
+    "/addadmin/:path*",
+    "/adddoctor/:path*",
+    "/addpatient/:path*",
+    "/viewappointments/:path*",
+    "/addappointments/:path*",
+    "/book/:path*",
+  ],
 };

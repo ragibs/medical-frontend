@@ -17,7 +17,6 @@ export async function summarizeSymptoms(prompt: string) {
     const result = await model.generateContent(
       `Please summarize the following text and refer to the subject as "patient": "${prompt}"`
     );
-    console.log(result);
     return result.response.text();
   } catch (error) {
     console.error(error);

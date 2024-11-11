@@ -77,7 +77,7 @@ const RecentActivity: React.FC<RecentActivityProps> = ({ appointments }) => {
                 <div>
                   <p className="text-sm text-sacramento">
                     <span className="font-medium">
-                      {appointment.doctor_full_name}
+                      Dr. {appointment.doctor_full_name}
                     </span>{" "}
                     was booked by {appointment.patient_full_name} on{" "}
                     {getFormattedDate(appointment.date)} at {appointment.time}

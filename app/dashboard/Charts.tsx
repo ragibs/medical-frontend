@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   ResponsiveContainer,
@@ -12,38 +12,61 @@ import {
   Pie,
 } from "recharts";
 import { TrendingUp } from "lucide-react";
+import api from "../api/api";
 
-const appointmentFrequency = [
-  { time: "09:00", appointments: 2 },
-  { time: "09:30", appointments: 1 },
-  { time: "10:00", appointments: 3 },
-  { time: "10:30", appointments: 2 },
-  { time: "11:00", appointments: 4 },
-  { time: "11:30", appointments: 1 },
-  { time: "12:00", appointments: 2 },
-  { time: "12:30", appointments: 0 },
-  { time: "13:00", appointments: 1 },
-  { time: "13:30", appointments: 3 },
-  { time: "14:00", appointments: 2 },
-  { time: "14:30", appointments: 1 },
-  { time: "15:00", appointments: 3 },
-  { time: "15:30", appointments: 2 },
-  { time: "16:00", appointments: 1 },
-  { time: "16:30", appointments: 2 },
-  { time: "17:00", appointments: 1 },
-];
+interface AppointmentCount {
+  time: string;
+  appointments: number;
+}
 
-const patientSatisfaction = [
-  { name: "Very Satisfied", value: 500 },
-  { name: "Satisfied", value: 300 },
-  { name: "Neutral", value: 200 },
-  { name: "Dissatisfied", value: 100 },
-  { name: "Very Dissatisfied", value: 25 },
-];
+interface DoctorData {
+  doctor: string;
+  appointments: number;
+}
 
-const COLORS = ["#162114", "#294122", "#FFBBA6", "#EB3D00", "#FFEDD2"];
+const COLORS = ["#162114", "#294122", "#FFBBA6", "#EB3D00", "#000000"];
 
 export function Charts() {
+  const [appointmentFrequency, setAppointmentFrequency] = useState<
+    AppointmentCount[]
+  >([]);
+  const [doctorData, setDoctorData] = useState<DoctorData[]>([]);
+  const [topDoctor, setTopDoctor] = useState<DoctorData | null>(null);
+
+  useEffect(() => {
+    const fetchAppointmentFrequency = async () => {
+      try {
+        const response = await api.get("/appointment/today-count/");
+        setAppointmentFrequency(response.data);
+      } catch (error) {
+        console.error("Error fetching appointment frequency data:", error);
+      }
+    };
+
+    fetchAppointmentFrequency();
+  }, []);
+
+  useEffect(() => {
+    const fetchDoctorData = async () => {
+      try {
+        const response = await api.get("/appointment/countbydoctor/");
+        const sortedData = response.data.sort(
+          (a: DoctorData, b: DoctorData) => b.appointments - a.appointments
+        );
+
+        if (sortedData.length > 0) {
+          setTopDoctor(sortedData[0]);
+        }
+
+        setDoctorData(sortedData.slice(0, 5));
+      } catch (error) {
+        console.error("Error fetching doctor data:", error);
+      }
+    };
+
+    fetchDoctorData();
+  }, []);
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
       <Card>
@@ -92,27 +115,29 @@ export function Charts() {
           </div>
         </CardContent>
       </Card>
-      <Card>
+      <Card className="bg-chiffon text-chiffon">
         <CardHeader>
-          <CardTitle>Patient Satisfaction (Last Year)</CardTitle>
+          <CardTitle className="text-sacramento">
+            Top 5 Doctors by Appointments
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
-                  data={patientSatisfaction}
+                  data={doctorData}
                   cx="50%"
                   cy="50%"
-                  labelLine={false}
                   outerRadius={80}
                   fill="#8884d8"
-                  dataKey="value"
-                  label={({ name, percent }) =>
-                    `${name} ${(percent * 100).toFixed(0)}%`
+                  dataKey="appointments"
+                  nameKey="doctor"
+                  label={({ doctor, percent }) =>
+                    `${doctor} ${(percent * 100).toFixed(0)}%`
                   }
                 >
-                  {patientSatisfaction.map((entry, index) => (
+                  {doctorData.map((entry, index) => (
                     <Cell
                       key={`cell-${index}`}
                       fill={COLORS[index % COLORS.length]}
@@ -126,11 +151,11 @@ export function Charts() {
           <div className="mt-4 flex items-center justify-center">
             <TrendingUp className="text-tangerine mr-2" />
             <span className="text-sm font-medium text-tangerine">
-              Trending up by 5.2% this month
+              {`${topDoctor?.doctor} has the most appointments (${topDoctor?.appointments}) this month`}
             </span>
           </div>
           <p className="text-center text-sm text-sacramento mt-2">
-            Showing total visitors: 1,125
+            Showing top 5 doctors by appointments
           </p>
         </CardContent>
       </Card>
