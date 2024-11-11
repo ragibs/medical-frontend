@@ -16,8 +16,11 @@ const RecentActivity: React.FC<RecentActivityProps> = ({ appointments }) => {
   };
 
   const getFormattedTime = (timeString: string) => {
-    const time = parseISO(`1970-01-01T${timeString}`);
-    return format(time, "h:mm a");
+    // Parse the time string in "HH:MM AM/PM" format and convert it to a Date object
+    const [time, period] = timeString.split(" ");
+    const [hours, minutes] = time.split(":").map(Number);
+    const formattedHours = period === "PM" && hours < 12 ? hours + 12 : hours;
+    return new Date(0, 0, 0, formattedHours, minutes);
   };
 
   return (
@@ -29,13 +32,39 @@ const RecentActivity: React.FC<RecentActivityProps> = ({ appointments }) => {
         <div className="space-y-4">
           {appointments
             .sort((a, b) => {
-              const dateA = new Date(`${a.date}T${a.time}`);
-              const dateB = new Date(`${b.date}T${b.time}`);
-              return dateA.getTime() - dateB.getTime();
+              const dateA = new Date(`${a.date}`);
+              const dateB = new Date(`${b.date}`);
+
+              const timeA = getFormattedTime(a.time);
+              const timeB = getFormattedTime(b.time);
+
+              const dateTimeA = new Date(
+                dateA.getFullYear(),
+                dateA.getMonth(),
+                dateA.getDate(),
+                timeA.getHours(),
+                timeA.getMinutes()
+              );
+
+              const dateTimeB = new Date(
+                dateB.getFullYear(),
+                dateB.getMonth(),
+                dateB.getDate(),
+                timeB.getHours(),
+                timeB.getMinutes()
+              );
+
+              return dateTimeA.getTime() - dateTimeB.getTime();
             })
             .filter((appointment) => {
+              const appointmentDate = new Date(`${appointment.date}`);
+              const appointmentTime = getFormattedTime(appointment.time);
               const appointmentDateTime = new Date(
-                `${appointment.date}T${appointment.time}`
+                appointmentDate.getFullYear(),
+                appointmentDate.getMonth(),
+                appointmentDate.getDate(),
+                appointmentTime.getHours(),
+                appointmentTime.getMinutes()
               );
               return (
                 isAfter(appointmentDateTime, new Date()) ||
@@ -51,8 +80,7 @@ const RecentActivity: React.FC<RecentActivityProps> = ({ appointments }) => {
                       {appointment.doctor_full_name}
                     </span>{" "}
                     was booked by {appointment.patient_full_name} on{" "}
-                    {getFormattedDate(appointment.date)} at{" "}
-                    {getFormattedTime(appointment.time)}
+                    {getFormattedDate(appointment.date)} at {appointment.time}
                   </p>
                 </div>
               </div>
