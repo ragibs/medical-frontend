@@ -2,14 +2,12 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { CalendarPlus, Loader2, X } from "lucide-react";
+import { Brain, CalendarPlus, Ellipsis, Loader2, X } from "lucide-react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import * as z from "zod";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Form,
@@ -34,6 +32,11 @@ import {
 } from "@/components/ui/popover";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import api from "../api/api";
+import { Doctor, Patient } from "@/types/types";
+import { summarizeSymptoms } from "@/config/geminiConfig";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { useToast } from "@/hooks/use-toast";
 
 const appointmentSchema = z.object({
   patientId: z.string().min(1, "Please select a patient"),
@@ -47,34 +50,17 @@ const appointmentSchema = z.object({
 
 type FormData = z.infer<typeof appointmentSchema>;
 
-interface Patient {
-  id: string;
-  name: string;
-  email: string;
-}
-
-interface Doctor {
-  id: string;
-  name: string;
-}
-
-const appointmentTimes = [
-  "09:00 AM",
-  "10:00 AM",
-  "11:00 AM",
-  "12:00 PM",
-  "01:00 PM",
-  "02:00 PM",
-  "03:00 PM",
-  "04:00 PM",
-  "05:00 PM",
-];
-
 export default function BookAppointmentForm() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [patients, setPatients] = useState<Patient[]>([]);
   const [doctors, setDoctors] = useState<Doctor[]>([]);
+  const [callingGemini, setCallingGemini] = useState(false);
+  const [showSummary, setShowSummary] = useState(false);
+  const [summary, setSummary] = useState("");
+  const [availableTimes, setAvailableTimes] = useState<string[]>([]);
+  const [fetchingTimes, setFetchingTimes] = useState(false);
+  const { toast } = useToast();
 
   const form = useForm<FormData>({
     resolver: zodResolver(appointmentSchema),
@@ -86,24 +72,24 @@ export default function BookAppointmentForm() {
     },
   });
 
+  const { watch, setValue } = form;
+  const selectedDoctor = watch("doctorId");
+  const selectedDate = watch("appointmentDate");
+
   useEffect(() => {
-    // Fetch patients from the backend
     const fetchPatients = async () => {
       try {
-        const response = await fetch("/api/patients");
-        const data = await response.json();
-        setPatients(data);
+        const response = await api.get("/getpatients/");
+        setPatients(response?.data);
       } catch (error) {
         console.error("Error fetching patients:", error);
       }
     };
 
-    // Fetch doctors from the backend
     const fetchDoctors = async () => {
       try {
-        const response = await fetch("/api/doctors");
-        const data = await response.json();
-        setDoctors(data);
+        const response = await api.get("/getdoctors/");
+        setDoctors(response.data);
       } catch (error) {
         console.error("Error fetching doctors:", error);
       }
@@ -113,16 +99,89 @@ export default function BookAppointmentForm() {
     fetchDoctors();
   }, []);
 
+  useEffect(() => {
+    const fetchAvailableTimes = async () => {
+      if (selectedDoctor && selectedDate) {
+        setFetchingTimes(true);
+        try {
+          const formattedDate = format(selectedDate, "yyyy-MM-dd");
+          const response = await api.get(
+            `http://127.0.0.1:8000/doctors/${selectedDoctor}/available-slots/${formattedDate}/`
+          );
+          setAvailableTimes(response.data.available_slots);
+        } catch (error) {
+          console.error("Error fetching available times:", error);
+          setAvailableTimes([]);
+        } finally {
+          setFetchingTimes(false);
+        }
+      }
+    };
+
+    fetchAvailableTimes();
+    setValue("appointmentTime", "");
+  }, [selectedDoctor, selectedDate, setValue]);
+
+  const handleAISummarize = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    const symptoms = form.getValues("symptoms");
+    if (!symptoms) {
+      form.setError("symptoms", {
+        type: "manual",
+        message: "Please enter symptoms before summarizing",
+      });
+      return;
+    }
+
+    setCallingGemini(true);
+
+    try {
+      const text = await summarizeSymptoms(symptoms);
+      setSummary(text || "Error generating text.");
+      setShowSummary(true);
+    } catch (error) {
+      console.error("Error:", error);
+      form.setError("symptoms", {
+        type: "manual",
+        message: "Error summarizing symptoms. Please try again.",
+      });
+    } finally {
+      setCallingGemini(false);
+    }
+  };
+
   const onSubmit = async (data: FormData) => {
     setIsSubmitting(true);
     try {
-      // Simulating an API call
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      console.log("Appointment booked:", data);
-      // Here you would typically send the form data to your backend
+      const payload = {
+        patient_id: data.patientId,
+        doctor_id: data.doctorId,
+        booking_date: format(data.appointmentDate, "yyyy-MM-dd"),
+        booking_time: data.appointmentTime,
+        symptoms: data.symptoms,
+        ai_summarized_symptoms: summary,
+      };
+
+      const response = await api.post("/make/appointment/", payload);
+
+      toast({
+        title: "Appointment Scheduled",
+        description: `Successfully booked appointment with Dr. ${
+          doctors.find((doc) => doc.id === Number(data.doctorId))?.first_name
+        } ${doctors.find((doc) => doc.id === Number(data.doctorId))?.last_name}
+          on ${format(data.appointmentDate, "EEEE, MMMM dd, yyyy")} at ${
+          data.appointmentTime
+        }`,
+      });
+
       router.push("/dashboard");
     } catch (error) {
       console.error("Error booking appointment:", error);
+      toast({
+        title: "Error",
+        description: "Failed to book the appointment. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -175,35 +234,64 @@ export default function BookAppointmentForm() {
                     </FormControl>
                     <SelectContent>
                       {patients.map((patient) => (
-                        <SelectItem key={patient.id} value={patient.id}>
-                          {patient.name} - {patient.email}
+                        <SelectItem key={patient.id} value={String(patient.id)}>
+                          {`${patient.first_name} ${patient.last_name}`}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
-                  <FormMessage />
+                  <FormMessage className="text-red-500 text-xs" />
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="symptoms"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm font-medium text-sacramento">
-                    Symptoms
-                  </FormLabel>
-                  <FormControl>
-                    <Textarea
-                      {...field}
-                      className="w-full rounded-md border-pine focus:border-tangerine focus:ring-tangerine min-h-[100px]"
-                      placeholder="Describe the symptoms..."
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="space-y-2">
+              <FormField
+                control={form.control}
+                name="symptoms"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-medium text-sacramento">
+                      Symptoms
+                    </FormLabel>
+                    <FormControl>
+                      <Textarea
+                        {...field}
+                        className="w-full rounded-md border-pine focus:border-tangerine focus:ring-tangerine min-h-[100px]"
+                        placeholder="Describe the symptoms..."
+                      />
+                    </FormControl>
+                    <FormMessage className="text-red-500 text-xs" />
+                  </FormItem>
+                )}
+              />
+              <Button
+                type="button"
+                onClick={handleAISummarize}
+                className="w-full sm:w-auto mt-2 bg-tangerine hover:bg-pine text-white"
+                disabled={isSubmitting || callingGemini}
+              >
+                {callingGemini ? (
+                  <>
+                    <Ellipsis className="mr-2 h-4 w-4 animate-spin" />
+                    Summarizing...
+                  </>
+                ) : (
+                  <>
+                    <Brain className="mr-2 h-4 w-4" />
+                    Summarize
+                  </>
+                )}
+              </Button>
+            </div>
+
+            {showSummary && (
+              <Alert className="bg-chiffon border-tangerine">
+                <Brain className="h-4 w-4" />
+                <AlertTitle>Symptom Summary</AlertTitle>
+                <AlertDescription>{summary}</AlertDescription>
+              </Alert>
+            )}
+
             <FormField
               control={form.control}
               name="doctorId"
@@ -223,13 +311,22 @@ export default function BookAppointmentForm() {
                     </FormControl>
                     <SelectContent>
                       {doctors.map((doctor) => (
-                        <SelectItem key={doctor.id} value={doctor.id}>
-                          {doctor.name}
+                        <SelectItem key={doctor.id} value={String(doctor.id)}>
+                          <div className="flex items-center">
+                            <div className="overflow-hidden">
+                              <div className="font-medium truncate">
+                                {`${doctor.first_name} ${doctor.last_name}`}
+                              </div>
+                              <div className="text-sm text-pine truncate">
+                                {doctor.short_bio}
+                              </div>
+                            </div>
+                          </div>
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
-                  <FormMessage />
+                  <FormMessage className="text-red-500 text-xs" />
                 </FormItem>
               )}
             />
@@ -277,7 +374,7 @@ export default function BookAppointmentForm() {
                         />
                       </PopoverContent>
                     </Popover>
-                    <FormMessage />
+                    <FormMessage className="text-red-500 text-xs" />
                   </FormItem>
                 )}
               />
@@ -292,21 +389,38 @@ export default function BookAppointmentForm() {
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
+                      disabled={
+                        !selectedDoctor || !selectedDate || fetchingTimes
+                      }
                     >
                       <FormControl>
                         <SelectTrigger className="w-full rounded-md border-pine focus:border-tangerine focus:ring-tangerine">
-                          <SelectValue placeholder="Select a time" />
+                          <SelectValue
+                            placeholder={
+                              fetchingTimes ? "Loading..." : "Select a time"
+                            }
+                          />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {appointmentTimes.map((time) => (
-                          <SelectItem key={time} value={time}>
-                            {time}
+                        {fetchingTimes ? (
+                          <SelectItem value="null" disabled>
+                            Loading available times...
                           </SelectItem>
-                        ))}
+                        ) : availableTimes.length > 0 ? (
+                          availableTimes.map((time) => (
+                            <SelectItem key={time} value={time}>
+                              {time}
+                            </SelectItem>
+                          ))
+                        ) : (
+                          <SelectItem value="null" disabled>
+                            No available times
+                          </SelectItem>
+                        )}
                       </SelectContent>
                     </Select>
-                    <FormMessage />
+                    <FormMessage className="text-red-500 text-xs" />
                   </FormItem>
                 )}
               />

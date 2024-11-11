@@ -21,13 +21,15 @@ export type Recommendation = {
 };
 
 export type Patient = {
-  id: number; // Assuming the User object has an ID
+  id: number;
+  first_name?: string;
+  last_name?: string;
   phone: string;
   address: string;
   city: string;
   state: string;
   zipcode: string;
-  dateOfBirth: string; // Represented as a string in "YYYY-MM-DD" format
+  dateOfBirth: string;
 };
 
 export type Appointment = {

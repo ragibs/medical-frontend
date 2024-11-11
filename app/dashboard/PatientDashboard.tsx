@@ -28,7 +28,6 @@ const PatientDashboard = () => {
     try {
       const response = await api.get("/getdoctors/");
       setDoctorList(response.data);
-      console.log("Fetched Doctors:", response.data);
     } catch (error) {
       console.error("Error fetching doctors:", error);
     }
@@ -38,7 +37,6 @@ const PatientDashboard = () => {
     try {
       const response = await api.get("/getpatients/");
       setPatientList(response.data);
-      console.log("Fetched Patients:", response.data);
     } catch (error) {
       console.error("Error fetching patients:", error);
     }
@@ -48,7 +46,6 @@ const PatientDashboard = () => {
     try {
       const response = await api.get("/view/all-appointments/");
       setAppointmentList(response.data);
-      console.log("Fetched All Appointments:", response.data);
     } catch (error) {
       console.error("Error fetching all appointments:", error);
     }
@@ -59,7 +56,6 @@ const PatientDashboard = () => {
       if (user?.id) {
         const response = await api.get(`/view/patient-appointment/${user.id}/`);
         setAppointmentList(response.data);
-        console.log("Fetched Patient Appointments:", response.data);
       }
     } catch (error) {
       console.error("Error fetching patient appointments:", error);
@@ -71,7 +67,6 @@ const PatientDashboard = () => {
       if (user?.id) {
         const response = await api.get(`/view/doctor-appointment/${user.id}/`);
         setAppointmentList(response.data);
-        console.log("Fetched Doctor Appointments:", response.data);
       }
     } catch (error) {
       console.error("Error fetching doctor appointments:", error);

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { UserPlus, Loader2, X } from "lucide-react";
+import { UserPlus, Loader2, X, RefreshCw } from "lucide-react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import * as z from "zod";
@@ -25,6 +25,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
+import api from "../api/api";
 
 const doctorSchema = z.object({
   username: z.string().min(3, "Username must be at least 3 characters"),
@@ -101,8 +103,10 @@ const US_STATES = [
 ];
 
 export default function AddDoctorForm() {
+  const { toast } = useToast();
+
   const router = useRouter();
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(true);
 
   const form = useForm<FormData>({
     resolver: zodResolver(doctorSchema),
@@ -126,16 +130,43 @@ export default function AddDoctorForm() {
 
   const onSubmit = async (data: FormData) => {
     setIsSubmitting(true);
+
+    const payload = {
+      username: data.username,
+      email: data.email,
+      password1: data.tempPassword,
+      password2: data.tempPassword,
+      first_name: data.firstName,
+      last_name: data.lastName,
+      phone: data.phone,
+      specialization: data.specialization,
+      address: data.address,
+      city: data.city,
+      state: data.state,
+      zipcode: data.zipcode,
+      bio: data.bio,
+      short_bio: data.shortBio,
+      years_experience: data.yearsOfExperience,
+    };
+
     try {
-      // Simulating an API call
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      console.log("Doctor added:", data);
-      // Here you would typically send the form data to your backend
-      // If successful, you might want to redirect or show a success message
+      const response = await api.post("/register/doctor/", payload);
+
+      toast({
+        title: "Doctor Added",
+        description: `Doctor ${data.firstName} ${data.lastName} has been successfully added.`,
+      });
+
       router.push("/dashboard");
     } catch (error) {
       console.error("Error adding doctor:", error);
-      // Handle error (e.g., show error message to user)
+
+      toast({
+        title: "Error",
+        description:
+          "Failed to add doctor. Please check the form and try again.",
+        variant: "destructive",
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -143,6 +174,25 @@ export default function AddDoctorForm() {
 
   const handleBack = () => {
     router.push("/dashboard");
+  };
+
+  const formatPhoneNumber = (value: string) => {
+    const cleaned = value.replace(/\D/g, ""); // Remove all non-numeric characters
+    const match = cleaned.match(/^(\d{3})(\d{3})(\d{4})$/);
+    if (match) {
+      return `${match[1]}-${match[2]}-${match[3]}`;
+    }
+    return value;
+  };
+
+  const generateRandomPassword = () => {
+    const charset =
+      "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
+    let password = "";
+    for (let i = 0; i < 12; i++) {
+      password += charset.charAt(Math.floor(Math.random() * charset.length));
+    }
+    form.setValue("tempPassword", password);
   };
 
   return (
@@ -182,9 +232,10 @@ export default function AddDoctorForm() {
                       <Input
                         {...field}
                         className="w-full rounded-md border-pine focus:border-tangerine focus:ring-tangerine"
+                        disabled={isSubmitting}
                       />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-red-500 text-xs" />
                   </FormItem>
                 )}
               />
@@ -201,9 +252,10 @@ export default function AddDoctorForm() {
                         {...field}
                         type="email"
                         className="w-full rounded-md border-pine focus:border-tangerine focus:ring-tangerine"
+                        disabled={isSubmitting}
                       />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-red-500 text-xs" />
                   </FormItem>
                 )}
               />
@@ -217,14 +269,25 @@ export default function AddDoctorForm() {
                     <FormLabel className="text-sm font-medium text-sacramento">
                       Temporary Password
                     </FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        type="password"
-                        className="w-full rounded-md border-pine focus:border-tangerine focus:ring-tangerine"
-                      />
-                    </FormControl>
-                    <FormMessage />
+                    <div className="flex space-x-2">
+                      <FormControl>
+                        <Input
+                          {...field}
+                          type="text"
+                          className="w-full rounded-md border-pine focus:border-tangerine focus:ring-tangerine"
+                          disabled={isSubmitting}
+                        />
+                      </FormControl>
+                      <Button
+                        type="button"
+                        onClick={generateRandomPassword}
+                        disabled={isSubmitting}
+                        className="bg-tangerine hover:bg-pine text-white"
+                      >
+                        <RefreshCw className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    <FormMessage className="text-red-500 text-xs" />
                   </FormItem>
                 )}
               />
@@ -239,10 +302,15 @@ export default function AddDoctorForm() {
                     <FormControl>
                       <Input
                         {...field}
+                        onChange={(e) =>
+                          field.onChange(formatPhoneNumber(e.target.value))
+                        }
+                        value={formatPhoneNumber(field.value)}
                         className="w-full rounded-md border-pine focus:border-tangerine focus:ring-tangerine"
+                        disabled={isSubmitting}
                       />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-red-500 text-xs" />
                   </FormItem>
                 )}
               />
@@ -260,9 +328,10 @@ export default function AddDoctorForm() {
                       <Input
                         {...field}
                         className="w-full rounded-md border-pine focus:border-tangerine focus:ring-tangerine"
+                        disabled={isSubmitting}
                       />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-red-500 text-xs" />
                   </FormItem>
                 )}
               />
@@ -278,9 +347,10 @@ export default function AddDoctorForm() {
                       <Input
                         {...field}
                         className="w-full rounded-md border-pine focus:border-tangerine focus:ring-tangerine"
+                        disabled={isSubmitting}
                       />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-red-500 text-xs" />
                   </FormItem>
                 )}
               />
@@ -297,9 +367,10 @@ export default function AddDoctorForm() {
                     <Input
                       {...field}
                       className="w-full rounded-md border-pine focus:border-tangerine focus:ring-tangerine"
+                      disabled={isSubmitting}
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-red-500 text-xs" />
                 </FormItem>
               )}
             />
@@ -315,9 +386,10 @@ export default function AddDoctorForm() {
                     <Input
                       {...field}
                       className="w-full rounded-md border-pine focus:border-tangerine focus:ring-tangerine"
+                      disabled={isSubmitting}
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-red-500 text-xs" />
                 </FormItem>
               )}
             />
@@ -334,9 +406,10 @@ export default function AddDoctorForm() {
                       <Input
                         {...field}
                         className="w-full rounded-md border-pine focus:border-tangerine focus:ring-tangerine"
+                        disabled={isSubmitting}
                       />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-red-500 text-xs" />
                   </FormItem>
                 )}
               />
@@ -353,7 +426,10 @@ export default function AddDoctorForm() {
                       defaultValue={field.value}
                     >
                       <FormControl>
-                        <SelectTrigger className="w-full rounded-md border-pine focus:border-tangerine focus:ring-tangerine">
+                        <SelectTrigger
+                          className="w-full rounded-md border-pine focus:border-tangerine focus:ring-tangerine"
+                          disabled={isSubmitting}
+                        >
                           <SelectValue placeholder="Select a state" />
                         </SelectTrigger>
                       </FormControl>
@@ -365,7 +441,7 @@ export default function AddDoctorForm() {
                         ))}
                       </SelectContent>
                     </Select>
-                    <FormMessage />
+                    <FormMessage className="text-red-500 text-xs" />
                   </FormItem>
                 )}
               />
@@ -381,9 +457,10 @@ export default function AddDoctorForm() {
                       <Input
                         {...field}
                         className="w-full rounded-md border-pine focus:border-tangerine focus:ring-tangerine"
+                        disabled={isSubmitting}
                       />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-red-500 text-xs" />
                   </FormItem>
                 )}
               />
@@ -400,9 +477,10 @@ export default function AddDoctorForm() {
                     <Textarea
                       {...field}
                       className="w-full rounded-md border-pine focus:border-tangerine focus:ring-tangerine min-h-[100px]"
+                      disabled={isSubmitting}
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-red-500 text-xs" />
                 </FormItem>
               )}
             />
@@ -418,9 +496,10 @@ export default function AddDoctorForm() {
                     <Input
                       {...field}
                       className="w-full rounded-md border-pine focus:border-tangerine focus:ring-tangerine"
+                      disabled={isSubmitting}
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-red-500 text-xs" />
                 </FormItem>
               )}
             />
@@ -437,9 +516,10 @@ export default function AddDoctorForm() {
                       {...field}
                       type="number"
                       className="w-full rounded-md border-pine focus:border-tangerine focus:ring-tangerine"
+                      disabled={isSubmitting}
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-red-500 text-xs" />
                 </FormItem>
               )}
             />

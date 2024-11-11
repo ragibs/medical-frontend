@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { UserPlus, Loader2, X, RefreshCw } from "lucide-react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
@@ -18,6 +17,8 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import api from "../api/api";
+import { useToast } from "@/hooks/use-toast";
 
 const adminSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
@@ -31,6 +32,7 @@ const adminSchema = z.object({
 type FormData = z.infer<typeof adminSchema>;
 
 export default function AddAdminForm() {
+  const { toast } = useToast();
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -48,14 +50,34 @@ export default function AddAdminForm() {
 
   const onSubmit = async (data: FormData) => {
     setIsSubmitting(true);
+
+    const payload = {
+      first_name: data.firstName,
+      last_name: data.lastName,
+      title: data.title,
+      username: data.username,
+      email: data.email,
+      password1: data.tempPassword,
+      password2: data.tempPassword,
+    };
+
     try {
-      // Simulating an API call
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      console.log("Admin added:", data);
-      // Here you would typically send the form data to your backend
+      const response = await api.post("/register/adminstaff/", payload);
+
+      toast({
+        title: "Admin Added",
+        description: `Admin ${data.firstName} ${data.lastName} has been successfully added.`,
+      });
+
       router.push("/dashboard");
     } catch (error) {
       console.error("Error adding admin:", error);
+
+      toast({
+        title: "Error",
+        description: "Failed to add admin. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -112,9 +134,10 @@ export default function AddAdminForm() {
                       <Input
                         {...field}
                         className="w-full rounded-md border-pine focus:border-tangerine focus:ring-tangerine"
+                        disabled={isSubmitting}
                       />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-red-500 text-xs" />
                   </FormItem>
                 )}
               />
@@ -130,9 +153,10 @@ export default function AddAdminForm() {
                       <Input
                         {...field}
                         className="w-full rounded-md border-pine focus:border-tangerine focus:ring-tangerine"
+                        disabled={isSubmitting}
                       />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-red-500 text-xs" />
                   </FormItem>
                 )}
               />
@@ -148,10 +172,11 @@ export default function AddAdminForm() {
                   <FormControl>
                     <Input
                       {...field}
+                      disabled={isSubmitting}
                       className="w-full rounded-md border-pine focus:border-tangerine focus:ring-tangerine"
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-red-500 text-xs" />
                 </FormItem>
               )}
             />
@@ -166,10 +191,11 @@ export default function AddAdminForm() {
                   <FormControl>
                     <Input
                       {...field}
+                      disabled={isSubmitting}
                       className="w-full rounded-md border-pine focus:border-tangerine focus:ring-tangerine"
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-red-500 text-xs" />
                 </FormItem>
               )}
             />
@@ -183,12 +209,13 @@ export default function AddAdminForm() {
                   </FormLabel>
                   <FormControl>
                     <Input
+                      disabled={isSubmitting}
                       {...field}
                       type="email"
                       className="w-full rounded-md border-pine focus:border-tangerine focus:ring-tangerine"
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-red-500 text-xs" />
                 </FormItem>
               )}
             />
@@ -206,17 +233,19 @@ export default function AddAdminForm() {
                         {...field}
                         type="text"
                         className="w-full rounded-md border-pine focus:border-tangerine focus:ring-tangerine"
+                        disabled={isSubmitting}
                       />
                     </FormControl>
                     <Button
                       type="button"
                       onClick={generateRandomPassword}
+                      disabled={isSubmitting}
                       className="bg-tangerine hover:bg-pine text-white"
                     >
                       <RefreshCw className="h-4 w-4" />
                     </Button>
                   </div>
-                  <FormMessage />
+                  <FormMessage className="text-red-500 text-xs" />
                 </FormItem>
               )}
             />

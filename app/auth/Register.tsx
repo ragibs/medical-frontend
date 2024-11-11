@@ -118,7 +118,6 @@ const formSchema = z
 
 type FormData = z.infer<typeof formSchema>;
 
-// Helper function to format phone number
 const formatPhoneNumber = (value: string) => {
   const cleaned = value.replace(/\D/g, ""); // Remove all non-numeric characters
   const match = cleaned.match(/^(\d{3})(\d{3})(\d{4})$/);
@@ -213,7 +212,7 @@ export default function Register() {
                       disabled={formSubmitting}
                     />
                   </FormControl>
-                  <FormMessage className="text-red-500" />
+                  <FormMessage className="text-red-500 text-xs" />
                 </FormItem>
               )}
             />
@@ -232,7 +231,7 @@ export default function Register() {
                       disabled={formSubmitting}
                     />
                   </FormControl>
-                  <FormMessage className="text-red-500" />
+                  <FormMessage className="text-red-500 text-xs" />
                 </FormItem>
               )}
             />
@@ -276,7 +275,7 @@ export default function Register() {
                       />
                     </PopoverContent>
                   </Popover>
-                  <FormMessage className="text-red-500" />
+                  <FormMessage className="text-red-500 text-xs" />
                 </FormItem>
               )}
             />
@@ -297,7 +296,7 @@ export default function Register() {
                       disabled={formSubmitting}
                     />
                   </FormControl>
-                  <FormMessage className="text-red-500" />
+                  <FormMessage className="text-red-500 text-xs" />
                 </FormItem>
               )}
             />
@@ -317,7 +316,7 @@ export default function Register() {
                       disabled={formSubmitting}
                     />
                   </FormControl>
-                  <FormMessage className="text-red-500" />
+                  <FormMessage className="text-red-500 text-xs" />
                 </FormItem>
               )}
             />
@@ -341,7 +340,7 @@ export default function Register() {
                       disabled={formSubmitting}
                     />
                   </FormControl>
-                  <FormMessage className="text-red-500" />
+                  <FormMessage className="text-red-500 text-xs" />
                 </FormItem>
               )}
             />
@@ -361,7 +360,7 @@ export default function Register() {
                       disabled={formSubmitting}
                     />
                   </FormControl>
-                  <FormMessage className="text-red-500" />
+                  <FormMessage className="text-red-500 text-xs" />
                 </FormItem>
               )}
             />
@@ -381,7 +380,7 @@ export default function Register() {
                       disabled={formSubmitting}
                     />
                   </FormControl>
-                  <FormMessage className="text-red-500" />
+                  <FormMessage className="text-red-500 text-xs" />
                 </FormItem>
               )}
             />
@@ -410,7 +409,7 @@ export default function Register() {
                       ))}
                     </SelectContent>
                   </Select>
-                  <FormMessage className="text-red-500" />
+                  <FormMessage className="text-red-500 text-xs" />
                 </FormItem>
               )}
             />
@@ -430,7 +429,7 @@ export default function Register() {
                       disabled={formSubmitting}
                     />
                   </FormControl>
-                  <FormMessage className="text-red-500" />
+                  <FormMessage className="text-red-500 text-xs" />
                 </FormItem>
               )}
             />
@@ -451,7 +450,7 @@ export default function Register() {
                       disabled={formSubmitting}
                     />
                   </FormControl>
-                  <FormMessage className="text-red-500" />
+                  <FormMessage className="text-red-500 text-xs" />
                 </FormItem>
               )}
             />
@@ -472,7 +471,7 @@ export default function Register() {
                       disabled={formSubmitting}
                     />
                   </FormControl>
-                  <FormMessage className="text-red-500" />
+                  <FormMessage className="text-red-500 text-xs" />
                 </FormItem>
               )}
             />

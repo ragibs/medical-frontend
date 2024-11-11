@@ -32,6 +32,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import api from "../api/api";
+import { useToast } from "@/hooks/use-toast";
 
 const patientSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
@@ -102,11 +104,21 @@ const US_STATES = [
   { label: "Wyoming", value: "WY" },
 ];
 
+const formatPhoneNumber = (value: string) => {
+  const cleaned = value.replace(/\D/g, ""); // Remove all non-numeric characters
+  const match = cleaned.match(/^(\d{3})(\d{3})(\d{4})$/);
+  if (match) {
+    return `${match[1]}-${match[2]}-${match[3]}`;
+  }
+  return value;
+};
+
 type FormData = z.infer<typeof patientSchema>;
 
 export default function AddPatientForm() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { toast } = useToast();
 
   const form = useForm<FormData>({
     resolver: zodResolver(patientSchema),
@@ -126,14 +138,39 @@ export default function AddPatientForm() {
 
   const onSubmit = async (data: FormData) => {
     setIsSubmitting(true);
+
+    const payload = {
+      first_name: data.firstName,
+      last_name: data.lastName,
+      username: data.username,
+      email: data.email,
+      password1: data.tempPassword,
+      password2: data.tempPassword,
+      phone: data.phone,
+      address: data.address,
+      city: data.city,
+      state: data.state,
+      zipcode: data.zipcode,
+      date_of_birth: data.dob.toISOString().split("T")[0],
+    };
+
     try {
-      // Simulating an API call
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      console.log("Patient added:", data);
-      // Here you would typically send the form data to your backend
+      const response = await api.post("/register/patient/", payload);
+
+      toast({
+        title: "Patient Added",
+        description: `Patient ${data.firstName} ${data.lastName} has been successfully added.`,
+      });
+
       router.push("/dashboard");
     } catch (error) {
       console.error("Error adding patient:", error);
+
+      toast({
+        title: "Error",
+        description: "Failed to add patient. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -190,9 +227,10 @@ export default function AddPatientForm() {
                       <Input
                         {...field}
                         className="w-full rounded-md border-pine focus:border-tangerine focus:ring-tangerine"
+                        disabled={isSubmitting}
                       />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-red-500 text-xs" />
                   </FormItem>
                 )}
               />
@@ -208,9 +246,10 @@ export default function AddPatientForm() {
                       <Input
                         {...field}
                         className="w-full rounded-md border-pine focus:border-tangerine focus:ring-tangerine"
+                        disabled={isSubmitting}
                       />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-red-500 text-xs" />
                   </FormItem>
                 )}
               />
@@ -224,7 +263,7 @@ export default function AddPatientForm() {
                     Date of birth
                   </FormLabel>
                   <Popover>
-                    <PopoverTrigger asChild>
+                    <PopoverTrigger asChild disabled={isSubmitting}>
                       <FormControl>
                         <Button
                           variant={"outline"}
@@ -255,7 +294,7 @@ export default function AddPatientForm() {
                       />
                     </PopoverContent>
                   </Popover>
-                  <FormMessage />
+                  <FormMessage className="text-red-500 text-xs" />
                 </FormItem>
               )}
             />
@@ -273,9 +312,10 @@ export default function AddPatientForm() {
                         {...field}
                         type="email"
                         className="w-full rounded-md border-pine focus:border-tangerine focus:ring-tangerine"
+                        disabled={isSubmitting}
                       />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-red-500 text-xs" />
                   </FormItem>
                 )}
               />
@@ -291,9 +331,14 @@ export default function AddPatientForm() {
                       <Input
                         {...field}
                         className="w-full rounded-md border-pine focus:border-tangerine focus:ring-tangerine"
+                        disabled={isSubmitting}
+                        value={formatPhoneNumber(field.value)}
+                        onChange={(e) =>
+                          field.onChange(formatPhoneNumber(e.target.value))
+                        }
                       />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-red-500 text-xs" />
                   </FormItem>
                 )}
               />
@@ -311,9 +356,10 @@ export default function AddPatientForm() {
                       <Input
                         {...field}
                         className="w-full rounded-md border-pine focus:border-tangerine focus:ring-tangerine"
+                        disabled={isSubmitting}
                       />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-red-500 text-xs" />
                   </FormItem>
                 )}
               />
@@ -331,17 +377,19 @@ export default function AddPatientForm() {
                           {...field}
                           type="text"
                           className="w-full rounded-md border-pine focus:border-tangerine focus:ring-tangerine"
+                          disabled={isSubmitting}
                         />
                       </FormControl>
                       <Button
                         type="button"
                         onClick={generateRandomPassword}
                         className="bg-tangerine hover:bg-pine text-white"
+                        disabled={isSubmitting}
                       >
                         <RefreshCw className="h-4 w-4" />
                       </Button>
                     </div>
-                    <FormMessage />
+                    <FormMessage className="text-red-500 text-xs" />
                   </FormItem>
                 )}
               />
@@ -358,9 +406,10 @@ export default function AddPatientForm() {
                     <Input
                       {...field}
                       className="w-full rounded-md border-pine focus:border-tangerine focus:ring-tangerine"
+                      disabled={isSubmitting}
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-red-500 text-xs" />
                 </FormItem>
               )}
             />
@@ -377,9 +426,10 @@ export default function AddPatientForm() {
                       <Input
                         {...field}
                         className="w-full rounded-md border-pine focus:border-tangerine focus:ring-tangerine"
+                        disabled={isSubmitting}
                       />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-red-500 text-xs" />
                   </FormItem>
                 )}
               />
@@ -396,7 +446,10 @@ export default function AddPatientForm() {
                       defaultValue={field.value}
                     >
                       <FormControl>
-                        <SelectTrigger className="w-full rounded-md border-pine focus:border-tangerine focus:ring-tangerine">
+                        <SelectTrigger
+                          disabled={isSubmitting}
+                          className="w-full rounded-md border-pine focus:border-tangerine focus:ring-tangerine"
+                        >
                           <SelectValue placeholder="Select a state" />
                         </SelectTrigger>
                       </FormControl>
@@ -408,7 +461,7 @@ export default function AddPatientForm() {
                         ))}
                       </SelectContent>
                     </Select>
-                    <FormMessage />
+                    <FormMessage className="text-red-500 text-xs" />
                   </FormItem>
                 )}
               />
@@ -424,9 +477,10 @@ export default function AddPatientForm() {
                       <Input
                         {...field}
                         className="w-full rounded-md border-pine focus:border-tangerine focus:ring-tangerine"
+                        disabled={isSubmitting}
                       />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-red-500 text-xs" />
                   </FormItem>
                 )}
               />
