@@ -43,4 +43,6 @@ export type Appointment = {
   notes?: string;
   createdAt: string;
   updatedAt: string;
+  patient_full_name?: string;
+  doctor_full_name?: string;
 };

@@ -10,6 +10,7 @@ import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useParams } from "next/navigation";
 import api from "@/app/api/api";
+import { useToast } from "@/hooks/use-toast";
 
 export default function ViewAppointment() {
   const router = useRouter();
@@ -18,16 +19,18 @@ export default function ViewAppointment() {
   const { appointment_id } = useParams();
   const [appointmentData, setAppointmentData] =
     useState<AppointmentData | null>(null);
+  const { toast } = useToast();
 
   type AppointmentData = {
+    id?: string;
     patient_name: string;
     doctor_name: string;
-    date: string; // e.g., "2024-12-08"
-    time: string; // e.g., "16:30:00"
+    date: string;
+    time: string;
     symptoms: string;
     ai_summarized_symptoms: string;
     notes: string;
-    created_at: string; // ISO date string e.g., "2024-11-10T17:13:16.304504Z"
+    created_at: string;
   };
 
   useEffect(() => {
@@ -49,17 +52,52 @@ export default function ViewAppointment() {
     router.push("/dashboard");
   };
 
-  const handleCancelAppointment = () => {
-    console.log("Appointment cancelled");
-    router.push("/dashboard");
+  const handleCancelAppointment = async () => {
+    try {
+      await api.delete(`/deleteappointment/${appointment_id}/`);
+
+      toast({
+        title: "Appointment Cancelled",
+        description: "Your appointment has been successfully cancelled.",
+      });
+
+      router.push("/dashboard");
+    } catch (error) {
+      console.error("Error cancelling appointment:", error);
+
+      toast({
+        title: "Error",
+        description: "Failed to cancel the appointment.",
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleEditNotes = () => {
-    setIsEditingNotes(!isEditingNotes);
+  const handleEditNotes = async () => {
     if (isEditingNotes) {
-      // Save notes logic here
-      console.log("Notes saved:", notes);
+      try {
+        if (appointment_id) {
+          const response = await api.patch(
+            `/appointments/${appointment_id}/add-notes/`,
+            {
+              notes: notes,
+            }
+          );
+
+          setAppointmentData((prev) =>
+            prev ? { ...prev, notes: response.data.notes } : prev
+          );
+        }
+      } catch (error) {
+        console.error("Error saving notes:", error);
+        toast({
+          title: "Error",
+          description: "Failed to save notes. Please try again.",
+          variant: "destructive",
+        });
+      }
     }
+    setIsEditingNotes(!isEditingNotes);
   };
 
   return (

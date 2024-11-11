@@ -128,7 +128,7 @@ const PatientDashboard = () => {
                   <>
                     <SummaryCards />
                     <Charts />
-                    {/* <RecentActivity appointments={appointments} /> */}
+                    <RecentActivity appointments={appointmentList} />
                   </>
                 )}
 

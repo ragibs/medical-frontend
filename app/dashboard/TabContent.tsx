@@ -103,7 +103,6 @@ const TabContent: React.FC<TabContentProps> = ({
     );
   };
 
-  // Sorting logic
   const sortedData = useMemo(() => {
     let sortableItems = [...data];
     if (sortConfig.key) {
@@ -122,7 +121,6 @@ const TabContent: React.FC<TabContentProps> = ({
     return sortableItems;
   }, [data, sortConfig]);
 
-  // Filtering logic
   const filteredData = useMemo(() => {
     return sortedData.filter((item) =>
       Object.values(item).some((value) =>
@@ -194,6 +192,7 @@ const TabContent: React.FC<TabContentProps> = ({
       setIsCancelling(false);
     }
   };
+
   return (
     <Card>
       <CardHeader>
