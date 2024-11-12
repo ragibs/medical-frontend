@@ -92,7 +92,9 @@ const Sidebar: React.FC<SidebarProps> = ({
                     {user.role === "DOCTOR" ? `Dr. ` : ""}
                     {user.first_name} {user.last_name}
                   </p>
-                  <p className="text-xs text-salmon">{user.email}</p>
+                  <p className="text-[11px] text-salmon leading-tight">
+                    {user.username}
+                  </p>
                 </>
               ) : (
                 <>

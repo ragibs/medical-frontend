@@ -106,7 +106,7 @@ export default function AddDoctorForm() {
   const { toast } = useToast();
 
   const router = useRouter();
-  const [isSubmitting, setIsSubmitting] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<FormData>({
     resolver: zodResolver(doctorSchema),

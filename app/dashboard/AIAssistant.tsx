@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { Appointment } from "@/types/types";
 
 const genAI = new GoogleGenerativeAI(
   process.env.NEXT_PUBLIC_GOOGLE_GEN_AI_KEY as string
@@ -75,7 +76,6 @@ export function AIAssistant() {
           setChatSession(currentChatSession);
         }
 
-        // Now safely send the message using the initialized session
         const result = await currentChatSession.sendMessage(input);
         const aiResponse = await result.response.text();
 
@@ -119,7 +119,7 @@ export function AIAssistant() {
                   className={`max-w-[70%] p-2 rounded-lg ${
                     message.role === "user"
                       ? "bg-tangerine text-white"
-                      : "bg-salmon text-white"
+                      : "bg-pine text-white"
                   }`}
                 >
                   {message.content}

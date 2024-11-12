@@ -75,17 +75,15 @@ const Header: React.FC<HeaderProps> = ({ setSidebarOpen }) => {
         </DropdownMenu>
       );
     } else if (user?.role === "PATIENT") {
-      // Button for Patients
       return (
         <Link href="/book">
-          <Button className="rounded-full bg-tangerine hover:bg-salmon text-chiffon flex items-center cursor-pointer">
-            <PlusCircle className="mr-2 h-4 w-4" />
-            Add New Appointment
+          <Button className="flex items-center cursor-pointer rounded-full bg-tangerine hover:bg-salmon text-chiffon px-4 py-2 sm:px-2 sm:py-1 sm:text-sm">
+            <PlusCircle className="mr-2 h-4 w-4 sm:h-3 sm:w-3" />
+            <span className="hidden sm:inline">Add New Appointment</span>
           </Button>
         </Link>
       );
     } else {
-      // Do not render the button for Doctors
       return null;
     }
   };

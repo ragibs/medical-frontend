@@ -11,6 +11,7 @@ import { useRouter } from "next/navigation";
 import { useParams } from "next/navigation";
 import api from "@/app/api/api";
 import { useToast } from "@/hooks/use-toast";
+import { useUserContext } from "@/app/context";
 
 export default function ViewAppointment() {
   const router = useRouter();
@@ -20,6 +21,7 @@ export default function ViewAppointment() {
   const [appointmentData, setAppointmentData] =
     useState<AppointmentData | null>(null);
   const { toast } = useToast();
+  const { user } = useUserContext();
 
   type AppointmentData = {
     id?: string;
@@ -219,23 +221,25 @@ export default function ViewAppointment() {
               >
                 Notes
               </Label>
-              <Button
-                type="button"
-                onClick={handleEditNotes}
-                className="bg-tangerine hover:bg-pine text-white font-semibold py-2 px-4 rounded-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-pine focus:ring-opacity-50"
-              >
-                {isEditingNotes ? (
-                  <>
-                    <Save className="mr-2 h-4 w-4" />
-                    Save Notes
-                  </>
-                ) : (
-                  <>
-                    <Edit className="mr-2 h-4 w-4" />
-                    Edit Notes
-                  </>
-                )}
-              </Button>
+              {user?.role == "DOCTOR" && (
+                <Button
+                  type="button"
+                  onClick={handleEditNotes}
+                  className="bg-tangerine hover:bg-pine text-white font-semibold py-2 px-4 rounded-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-pine focus:ring-opacity-50"
+                >
+                  {isEditingNotes ? (
+                    <>
+                      <Save className="mr-2 h-4 w-4" />
+                      Save Notes
+                    </>
+                  ) : (
+                    <>
+                      <Edit className="mr-2 h-4 w-4" />
+                      Edit Notes
+                    </>
+                  )}
+                </Button>
+              )}
             </div>
             <Textarea
               id="notes"
