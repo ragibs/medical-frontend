@@ -30,4 +30,3 @@ CMD ["npm", "run", "dev"]
 # docker rm medical_app_container
 # to start the container, run the following command:
 # docker start medical_app_container
-# Use a lightweight Node.js image
