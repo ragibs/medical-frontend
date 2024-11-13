@@ -46,6 +46,7 @@ const Dashboard = () => {
     try {
       const response = await api.get("/view/all-appointments/");
       setAppointmentList(response.data);
+      console.log("Admin: ", response.data);
     } catch (error) {
       console.error("Error fetching all appointments:", error);
     }
@@ -56,6 +57,7 @@ const Dashboard = () => {
       if (user?.id) {
         const response = await api.get(`/view/patient-appointment/${user.id}/`);
         setAppointmentList(response.data);
+        console.log("Patient : ", response.data);
       }
     } catch (error) {
       console.error("Error fetching patient appointments:", error);
@@ -67,6 +69,7 @@ const Dashboard = () => {
       if (user?.id) {
         const response = await api.get(`/view/doctor-appointment/${user.id}/`);
         setAppointmentList(response.data);
+        console.log("Doctor :", response.data);
       }
     } catch (error) {
       console.error("Error fetching doctor appointments:", error);
@@ -166,7 +169,7 @@ const Dashboard = () => {
                     </TabsContent>
                   ))}
                   <TabsContent value="ai-assistant">
-                    <AIAssistant />
+                    <AIAssistant appointments={appointmentList} />
                   </TabsContent>
                 </Tabs>
               </motion.div>

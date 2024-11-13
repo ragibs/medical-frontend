@@ -45,4 +45,5 @@ export type Appointment = {
   updatedAt: string;
   patient_full_name?: string;
   doctor_full_name?: string;
+  ai_summarized_symptoms?: string;
 };

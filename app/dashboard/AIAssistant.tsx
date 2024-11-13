@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { Appointment } from "@/types/types";
+import { useUserContext } from "../context";
 
 const genAI = new GoogleGenerativeAI(
   process.env.NEXT_PUBLIC_GOOGLE_GEN_AI_KEY as string
@@ -22,25 +23,23 @@ const model = genAI.getGenerativeModel({
   model: "gemini-1.5-flash",
 });
 
-const generationConfig = {
-  temperature: 1,
-  topP: 0.95,
-  topK: 40,
-  maxOutputTokens: 100,
-  responseMimeType: "text/plain",
-};
-
 type Message = {
   role: "user" | "ai";
   content: string;
 };
 
-export function AIAssistant() {
+type AIAssistantProps = {
+  appointments: Appointment[];
+};
+
+export const AIAssistant: React.FC<AIAssistantProps> = ({ appointments }) => {
   const [input, setInput] = useState("");
+  const { user } = useUserContext();
+
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "ai",
-      content: "Welcome to the AI Assistant. How can I help you today?",
+      content: `Hello ${user?.first_name}. How can I help you today?`,
     },
   ]);
   const [isLoading, setIsLoading] = useState(false);
@@ -57,6 +56,66 @@ export function AIAssistant() {
     setInput(e.target.value);
   };
 
+  useEffect(() => {
+    // Function to format appointments based on user role
+    const getFormattedAppointments = (
+      appointments: Appointment[],
+      userRole: string | undefined,
+      userName: string | undefined
+    ) => {
+      return appointments
+        .map((appt) => {
+          if (userRole === "ADMIN") {
+            return `Doctor: ${appt.doctor_full_name}, Patient: ${
+              appt.patient_full_name
+            }, Date: ${appt.date}, Time: ${appt.time}, Symptoms: ${
+              appt.ai_summarized_symptoms ?? "N/A"
+            }`;
+          } else if (userRole === "DOCTOR") {
+            return `Patient: ${appt.patient_full_name}, Date: ${
+              appt.date
+            }, Time: ${appt.time}, Symptoms: ${
+              appt.ai_summarized_symptoms ?? "N/A"
+            }`;
+          } else if (userRole === "PATIENT") {
+            return `Doctor: ${appt.doctor_full_name}, Date: ${
+              appt.date
+            }, Time: ${appt.time}, Symptoms: ${
+              appt.ai_summarized_symptoms ?? "N/A"
+            }`;
+          } else {
+            return `Date: ${appt.date}, Time: ${appt.time}, Symptoms: ${
+              appt.ai_summarized_symptoms ?? "N/A"
+            }`;
+          }
+        })
+        .join("\n");
+    };
+
+    const formattedAppointments = getFormattedAppointments(
+      appointments,
+      user?.role,
+      user?.first_name
+    );
+
+    const newChatSession = model.startChat({
+      history: [
+        {
+          role: "user",
+          parts: [
+            {
+              text: `You are an AI assistant interacting with ${user?.role.toLowerCase()} ${
+                user?.first_name
+              }. Here are the current appointments:\n${formattedAppointments}\n\nIMPORTANT: Only answer questions related to the above appointments. Do not answer any other questions or provide any information beyond this context. If a question is unrelated, respond with "I'm only able to answer questions about the provided appointments."`,
+            },
+          ],
+        },
+      ],
+    });
+
+    setChatSession(newChatSession);
+  }, [appointments]);
+
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault();
@@ -66,17 +125,19 @@ export function AIAssistant() {
       setMessages((prev) => [...prev, { role: "user", content: input }]);
 
       try {
-        // Initialize chat session if it hasn't been initialized yet
-        let currentChatSession = chatSession;
-        if (!currentChatSession) {
-          currentChatSession = await model.startChat({
-            generationConfig,
-            history: [],
-          });
-          setChatSession(currentChatSession);
+        if (!chatSession) {
+          console.error("Chat session is not initialized");
+          setMessages((prev) => [
+            ...prev,
+            {
+              role: "ai",
+              content: "Chat session is not ready. Please wait and try again.",
+            },
+          ]);
+          return;
         }
 
-        const result = await currentChatSession.sendMessage(input);
+        const result = await chatSession.sendMessage(input);
         const aiResponse = await result.response.text();
 
         setMessages((prev) => [...prev, { role: "ai", content: aiResponse }]);
@@ -156,4 +217,4 @@ export function AIAssistant() {
       </CardContent>
     </Card>
   );
-}
+};
