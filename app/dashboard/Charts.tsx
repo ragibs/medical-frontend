@@ -13,6 +13,7 @@ import {
 } from "recharts";
 import { TrendingUp } from "lucide-react";
 import api from "../api/api";
+import { useUserContext } from "../context";
 
 interface AppointmentCount {
   time: string;
@@ -27,6 +28,8 @@ interface DoctorData {
 const COLORS = ["#162114", "#294122", "#FFBBA6", "#EB3D00", "#000000"];
 
 export function Charts() {
+  const { user } = useUserContext();
+
   const [appointmentFrequency, setAppointmentFrequency] = useState<
     AppointmentCount[]
   >([]);
@@ -34,38 +37,37 @@ export function Charts() {
   const [topDoctor, setTopDoctor] = useState<DoctorData | null>(null);
 
   useEffect(() => {
-    const fetchAppointmentFrequency = async () => {
-      try {
-        const response = await api.get("/appointment/today-count/");
-        setAppointmentFrequency(response.data);
-      } catch (error) {
-        console.error("Error fetching appointment frequency data:", error);
-      }
-    };
-
-    fetchAppointmentFrequency();
-  }, []);
-
-  useEffect(() => {
-    const fetchDoctorData = async () => {
-      try {
-        const response = await api.get("/appointment/countbydoctor/");
-        const sortedData = response.data.sort(
-          (a: DoctorData, b: DoctorData) => b.appointments - a.appointments
-        );
-
-        if (sortedData.length > 0) {
-          setTopDoctor(sortedData[0]);
+    if (user?.role === "ADMIN") {
+      const fetchAppointmentFrequency = async () => {
+        try {
+          const response = await api.get("/appointment/today-count/");
+          setAppointmentFrequency(response.data);
+        } catch (error) {
+          console.error("Error fetching appointment frequency data:", error);
         }
+      };
 
-        setDoctorData(sortedData.slice(0, 5));
-      } catch (error) {
-        console.error("Error fetching doctor data:", error);
-      }
-    };
+      const fetchDoctorData = async () => {
+        try {
+          const response = await api.get("/appointment/countbydoctor/");
+          const sortedData = response.data.sort(
+            (a: DoctorData, b: DoctorData) => b.appointments - a.appointments
+          );
 
-    fetchDoctorData();
-  }, []);
+          if (sortedData.length > 0) {
+            setTopDoctor(sortedData[0]);
+          }
+
+          setDoctorData(sortedData.slice(0, 5));
+        } catch (error) {
+          console.error("Error fetching doctor data:", error);
+        }
+      };
+
+      fetchAppointmentFrequency();
+      fetchDoctorData();
+    }
+  }, [user]);
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">

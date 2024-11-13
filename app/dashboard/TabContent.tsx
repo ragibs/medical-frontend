@@ -59,7 +59,7 @@ const TabContent: React.FC<TabContentProps> = ({
     direction: "",
   });
 
-  const mangeButton = (appointmentId: number) => {
+  const mangeButton = (appointmentId: number, email?: string) => {
     if (user?.role === "PATIENT") {
       return (
         <AlertDialog>
@@ -94,13 +94,23 @@ const TabContent: React.FC<TabContentProps> = ({
     }
 
     // For Admins and Doctors
-    return (
-      <Link href={`/viewappointment/${appointmentId}`}>
-        <Button size="sm" className="text-pine bg-tangerine hover:bg-salmon">
-          {tab === "appointments" ? "Manage" : "Contact"}
-        </Button>
-      </Link>
-    );
+    if (tab === "appointments") {
+      return (
+        <Link href={`/viewappointment/${appointmentId}`}>
+          <Button size="sm" className="text-pine bg-tangerine hover:bg-salmon">
+            Manage
+          </Button>
+        </Link>
+      );
+    } else {
+      return (
+        <a href={`mailto:${email}`} target="_blank" rel="noopener noreferrer">
+          <Button size="sm" className="text-pine bg-tangerine hover:bg-salmon">
+            Contact
+          </Button>
+        </a>
+      );
+    }
   };
 
   const sortedData = useMemo(() => {
@@ -109,6 +119,12 @@ const TabContent: React.FC<TabContentProps> = ({
       sortableItems.sort((a, b) => {
         const aKey = a[sortConfig.key as keyof TabData];
         const bKey = b[sortConfig.key as keyof TabData];
+        if (aKey === undefined && bKey === undefined) return 0;
+        if (aKey === undefined)
+          return sortConfig.direction === "ascending" ? 1 : -1;
+        if (bKey === undefined)
+          return sortConfig.direction === "ascending" ? -1 : 1;
+
         if (aKey < bKey) {
           return sortConfig.direction === "ascending" ? -1 : 1;
         }
@@ -137,7 +153,6 @@ const TabContent: React.FC<TabContentProps> = ({
     setSortConfig({ key, direction });
   };
 
-  // Dynamically render table headers and cells based on the tab content
   const renderTableHeaders = () => {
     if (data.length === 0) return null;
     return Object.keys(data[0])
@@ -227,7 +242,7 @@ const TabContent: React.FC<TabContentProps> = ({
             {filteredData.map((item) => (
               <TableRow key={item.id}>
                 {renderTableCells(item)}
-                <TableCell>{mangeButton(item.id)}</TableCell>
+                <TableCell>{mangeButton(item.id, item.email)}</TableCell>
               </TableRow>
             ))}
           </TableBody>

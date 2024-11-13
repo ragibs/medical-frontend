@@ -163,7 +163,8 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ appointments }) => {
       <CardHeader>
         <CardTitle className="text-2xl text-sacramento">AI Assistant</CardTitle>
         <CardDescription className="text-pine">
-          Get help from our AI assistant
+          Get assistance from our AI assistant. Ask any questions related to
+          your appointments.
         </CardDescription>
       </CardHeader>
       <CardContent>

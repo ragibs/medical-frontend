@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar, Users } from "lucide-react";
 import api from "../api/api";
+import { useUserContext } from "../context";
 
 interface SummaryData {
   title: string;
@@ -12,6 +13,7 @@ interface SummaryData {
 }
 
 export function SummaryCards() {
+  const { user } = useUserContext();
   const [appointmentsData, setAppointmentsData] = useState({
     current_month: 0,
     last_month: 0,
@@ -22,27 +24,29 @@ export function SummaryCards() {
   });
 
   useEffect(() => {
-    const fetchAppointments = async () => {
-      try {
-        const response = await api.get("/appointment/changecount/");
-        setAppointmentsData(response.data);
-      } catch (error) {
-        console.error("Error fetching appointments data:", error);
-      }
-    };
+    if (user?.role === "ADMIN") {
+      const fetchAppointments = async () => {
+        try {
+          const response = await api.get("/appointment/changecount/");
+          setAppointmentsData(response.data);
+        } catch (error) {
+          console.error("Error fetching appointments data:", error);
+        }
+      };
 
-    const fetchRegistrations = async () => {
-      try {
-        const response = await api.get("/registrations/");
-        setPatientsData(response.data);
-      } catch (error) {
-        console.error("Error fetching patient registrations data:", error);
-      }
-    };
+      const fetchRegistrations = async () => {
+        try {
+          const response = await api.get("/registrations/");
+          setPatientsData(response.data);
+        } catch (error) {
+          console.error("Error fetching patient registrations data:", error);
+        }
+      };
 
-    fetchAppointments();
-    fetchRegistrations();
-  }, []);
+      fetchAppointments();
+      fetchRegistrations();
+    }
+  }, [user]);
 
   const calculateChange = (current: number, last: number) => {
     if (last === 0) return current > 0 ? "+100%" : "0%";

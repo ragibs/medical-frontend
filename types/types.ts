@@ -12,6 +12,7 @@ export type Doctor = {
   zipcode?: string;
   shortBio?: string;
   yearsExperience?: number;
+  email?: string;
 };
 
 export type Recommendation = {
@@ -30,6 +31,7 @@ export type Patient = {
   state: string;
   zipcode: string;
   dateOfBirth: string;
+  email?: string;
 };
 
 export type Appointment = {
@@ -46,4 +48,5 @@ export type Appointment = {
   patient_full_name?: string;
   doctor_full_name?: string;
   ai_summarized_symptoms?: string;
+  email?: string;
 };
