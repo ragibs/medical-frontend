@@ -14,6 +14,7 @@ import { Loader2 } from "lucide-react";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { Appointment } from "@/types/types";
 import { useUserContext } from "../context";
+import ReactMarkdown from "react-markdown";
 
 const genAI = new GoogleGenerativeAI(
   process.env.NEXT_PUBLIC_GOOGLE_GEN_AI_KEY as string
@@ -21,6 +22,10 @@ const genAI = new GoogleGenerativeAI(
 
 const model = genAI.getGenerativeModel({
   model: "gemini-1.5-flash",
+  generationConfig: {
+    maxOutputTokens: 100,
+    temperature: 0.5,
+  },
 });
 
 type Message = {
@@ -184,7 +189,11 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ appointments }) => {
                       : "bg-pine text-white"
                   }`}
                 >
-                  {message.content}
+                  {message.role === "ai" ? (
+                    <ReactMarkdown>{message.content}</ReactMarkdown>
+                  ) : (
+                    <span>{message.content}</span>
+                  )}
                 </div>
               </div>
             ))}
