@@ -71,7 +71,7 @@ const TabContent: React.FC<TabContentProps> = ({
               Cancel
             </Button>
           </AlertDialogTrigger>
-          <AlertDialogContent className="bg-chiffon">
+          <AlertDialogContent className="bg-white">
             <AlertDialogHeader>
               <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
               <AlertDialogDescription>
@@ -80,9 +80,11 @@ const TabContent: React.FC<TabContentProps> = ({
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel className="bg-salmon">Close</AlertDialogCancel>
+              <AlertDialogCancel className="bg-chiffon hover:bg-salmon">
+                Close
+              </AlertDialogCancel>
               <AlertDialogAction
-                className="bg-red-600"
+                className="bg-red-600 hover:bg-red-900"
                 onClick={() => handleCancelAppointment(appointmentId)}
               >
                 {isCancelling ? "Cancelling..." : "Confirm"}

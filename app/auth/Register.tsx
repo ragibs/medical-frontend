@@ -32,6 +32,8 @@ import {
 } from "@/components/ui/select";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import api from "../api/api";
+import axios from "axios";
 
 // List of all U.S. states with abbreviations
 const US_STATES = [
@@ -168,27 +170,21 @@ export default function Register() {
     setFormSubmitting(true);
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/register/patient/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
+      const response = await api.post("/register/patient/", formData);
 
-      if (response.ok) {
-        const result = await response.json();
+      if (response.status === 201) {
         setFormSubmitting(false);
         setSubmitted(true);
-        setSubmitMessage(result.message);
+        setSubmitMessage(response.data.message);
       } else {
-        const errorData = await response.json();
-        console.error("Registration failed:", errorData);
-        // Handle errors, possibly display error messages from `errorData`
+        console.error("Registration failed:", response.data);
       }
     } catch (error) {
-      console.error("An error occurred:", error);
-      // Handle network errors or other unexpected errors
+      if (axios.isAxiosError(error) && error.response) {
+        console.error("Error response:", error.response.data);
+      } else {
+        console.error("An unexpected error occurred:", error);
+      }
     }
   };
 
@@ -252,6 +248,7 @@ export default function Register() {
                             "w-[240px] pl-3 text-left font-normal",
                             !field.value && "text-muted-foreground"
                           )}
+                          disabled={formSubmitting}
                         >
                           {field.value ? (
                             format(field.value, "PPP")
@@ -395,6 +392,7 @@ export default function Register() {
                   <Select
                     onValueChange={field.onChange}
                     defaultValue={field.value}
+                    disabled={formSubmitting}
                   >
                     <FormControl>
                       <SelectTrigger className="w-full rounded-md border-gray-300 shadow-sm focus:border-tangerine focus:ring-tangerine">
@@ -502,7 +500,7 @@ export default function Register() {
           />
           <Alert className=" border-tangerine ">
             <UserRoundCheck className="h-4 w-4" />
-            <AlertTitle>You're All Set!</AlertTitle>
+            <AlertTitle className="py-2">You're All Set!</AlertTitle>
             <AlertDescription>{submitMessage}</AlertDescription>
           </Alert>
         </div>
