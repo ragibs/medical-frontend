@@ -41,6 +41,7 @@ export default function ViewAppointment() {
         if (appointment_id) {
           const response = await api.get(`appointments/${appointment_id}/`);
           setAppointmentData(response.data);
+          setNotes(response.data.notes || "No notes added yet.");
         }
       } catch (error) {
         console.error("Error fetching patient appointments:", error);
@@ -89,6 +90,7 @@ export default function ViewAppointment() {
           setAppointmentData((prev) =>
             prev ? { ...prev, notes: response.data.notes } : prev
           );
+          setNotes(response.data.notes);
         }
       } catch (error) {
         console.error("Error saving notes:", error);

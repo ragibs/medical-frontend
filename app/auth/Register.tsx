@@ -110,8 +110,8 @@ const formSchema = z
       .min(10, "Phone number is required")
       .max(12, "Phone number should follow the format XXX-XXX-XXXX"),
     email: z.string().email("Invalid email address"),
-    password: z.string().min(6, "Password must be at least 6 characters long"),
-    confirmPassword: z.string().min(6, "Please confirm your password"),
+    password: z.string().min(8, "Password must be at least 6 characters long"),
+    confirmPassword: z.string().min(8, "Please confirm your password"),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",
@@ -181,8 +181,10 @@ export default function Register() {
       }
     } catch (error) {
       if (axios.isAxiosError(error) && error.response) {
+        setFormSubmitting(false);
         console.error("Error response:", error.response.data);
       } else {
+        setFormSubmitting(false);
         console.error("An unexpected error occurred:", error);
       }
     }
