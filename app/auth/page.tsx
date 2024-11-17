@@ -29,8 +29,8 @@ const Auth = () => {
                 </h1>
               </div>
               <p className="text-gray-600 mb-8">
-                Join our healthcare community or log in to access your
-                personalized dashboard.
+                Sign up to easily book, track, and manage appointments with your
+                clinic, or log in to access your personalized dashboard.
               </p>
 
               <Tabs defaultValue="login">

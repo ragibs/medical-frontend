@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -110,7 +111,7 @@ const formSchema = z
       .min(10, "Phone number is required")
       .max(12, "Phone number should follow the format XXX-XXX-XXXX"),
     email: z.string().email("Invalid email address"),
-    password: z.string().min(8, "Password must be at least 6 characters long"),
+    password: z.string().min(8, "Password must be at least 8 characters long"),
     confirmPassword: z.string().min(8, "Please confirm your password"),
   })
   .refine((data) => data.password === data.confirmPassword, {
@@ -176,15 +177,29 @@ export default function Register() {
         setFormSubmitting(false);
         setSubmitted(true);
         setSubmitMessage(response.data.message);
-      } else {
-        console.error("Registration failed:", response.data);
       }
     } catch (error) {
-      if (axios.isAxiosError(error) && error.response) {
-        setFormSubmitting(false);
-        console.error("Error response:", error.response.data);
+      setFormSubmitting(false);
+
+      if (axios.isAxiosError(error) && error.response?.data) {
+        const serverErrors = error.response.data;
+
+        Object.keys(serverErrors).forEach((fieldName) => {
+          const formFieldName =
+            fieldName === "password1"
+              ? "password"
+              : fieldName === "password2"
+              ? "confirmPassword"
+              : fieldName;
+
+          form.setError(formFieldName as keyof FormData, {
+            type: "server",
+            message: Array.isArray(serverErrors[fieldName])
+              ? serverErrors[fieldName][0]
+              : serverErrors[fieldName],
+          });
+        });
       } else {
-        setFormSubmitting(false);
         console.error("An unexpected error occurred:", error);
       }
     }
@@ -450,6 +465,10 @@ export default function Register() {
                       disabled={formSubmitting}
                     />
                   </FormControl>
+                  <FormDescription className="text-pine text-xs">
+                    Password must be at least 8 characters long and should not
+                    be a common password.
+                  </FormDescription>
                   <FormMessage className="text-red-500 text-xs" />
                 </FormItem>
               )}

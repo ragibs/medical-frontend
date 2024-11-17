@@ -11,12 +11,8 @@ const Footer = () => {
             <Image src={logo} width={60} alt={"Logo of medical"} priority />
           </div>
           <nav className="flex space-x-4 mb-4 md:mb-0">
-            <Link href="#" className="hover:text-emerald-700">
-              Privacy Policy
-            </Link>
-            <Link href="#" className="hover:text-emerald-700">
-              Terms of Service
-            </Link>
+            <div className="hover:text-emerald-700">Privacy Policy</div>
+            <div className="hover:text-emerald-700">Terms of Service</div>
             <Link href="/contactus" className="hover:text-emerald-700">
               Contact Us
             </Link>

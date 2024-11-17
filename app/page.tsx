@@ -2,17 +2,33 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Calendar, Users, Clock, Send } from "lucide-react";
+import { Calendar, Users, Clock, Send, CheckCircle } from "lucide-react";
 import Image from "next/image";
 import FeatureCard from "@/components/FeatureCard";
 import TestimonialCard from "@/components/TestimonialCard";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
-import PricingCard from "@/components/PricingCard";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { useState } from "react";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 export default function LandingPage() {
+  const [submitted, setSubmitted] = useState(false);
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    setTimeout(() => {
+      setSubmitted(true);
+    }, 1000);
+  };
+
   return (
     <div className="min-h-screen bg-chiffon text-gray-900 flex flex-col">
       <Header />
@@ -117,44 +133,77 @@ export default function LandingPage() {
               </div>
             </div>
           </section>
-          <section className="bg-chiffon py-20">
+
+          <section className="py-20 bg-chiffon">
             <div className="container mx-auto px-4">
               <h2 className="text-4xl font-bold mb-12 text-center">
-                Simple Pricing
+                Frequently Asked Questions
               </h2>
-              <div className="grid md:grid-cols-3 gap-8">
-                <PricingCard
-                  title="Basic"
-                  price="$9"
-                  features={[
-                    "1 User",
-                    "Online Support",
-                    "1000 Monthly Requests",
-                    "1 GB Data Package",
-                  ]}
-                />
-                <PricingCard
-                  title="Advanced"
-                  price="$29"
-                  features={[
-                    "Up to 5 Users",
-                    "Priority Suppor",
-                    "5000 Monthly Requests",
-                    "5 GB Data Package",
-                  ]}
-                  highlighted={true}
-                />
-                <PricingCard
-                  title="Premium"
-                  price="$59"
-                  features={[
-                    "Unlimited Users",
-                    "Premium Support",
-                    "Unlimited Monthly Requests",
-                    "10 GB Data Package",
-                  ]}
-                />
-              </div>
+              <Accordion
+                type="single"
+                collapsible
+                className="max-w-3xl mx-auto"
+              >
+                <AccordionItem value="item-1">
+                  <AccordionTrigger>
+                    Who is this demo intended for?
+                  </AccordionTrigger>
+                  <AccordionContent className="text-base text-pine">
+                    The demo is designed for clinics and healthcare
+                    professionals interested in exploring MediCal, our
+                    comprehensive SaaS solution for appointment management and
+                    patient engagement.
+                  </AccordionContent>
+                </AccordionItem>
+
+                <AccordionItem value="item-2">
+                  <AccordionTrigger>
+                    Who can access the authentication page?
+                  </AccordionTrigger>
+                  <AccordionContent className="text-base text-pine">
+                    The authentication page is intended for patients who are
+                    either new to or currently registered with clinics utilizing
+                    MediCal for appointment scheduling. It allows them to sign
+                    up or log in to access their clinic’s booking platform.
+                  </AccordionContent>
+                </AccordionItem>
+
+                <AccordionItem value="item-3">
+                  <AccordionTrigger>
+                    How can I access the admin dashboard?
+                  </AccordionTrigger>
+                  <AccordionContent className="text-base text-pine">
+                    Admin access credentials will be provided to you upon setup.
+                    Use these credentials on the /auth page to access the admin
+                    dashboard, where you can manage appointments, users, and
+                    other administrative tasks.
+                  </AccordionContent>
+                </AccordionItem>
+
+                <AccordionItem value="item-4">
+                  <AccordionTrigger>
+                    How can doctors be registered on the platform?
+                  </AccordionTrigger>
+                  <AccordionContent className="text-base text-pine">
+                    With admin rights, you can register doctors by providing
+                    their details, such as name, email, and a temporary
+                    password. Once registered, doctors can log in through the
+                    /auth page to access their personalized dashboard.
+                  </AccordionContent>
+                </AccordionItem>
+
+                <AccordionItem value="item-5">
+                  <AccordionTrigger>
+                    How can additional admins be added?
+                  </AccordionTrigger>
+                  <AccordionContent className="text-base text-pine">
+                    Existing admins have the ability to add other
+                    administrators. New admins will have the same level of
+                    access and privileges to manage the clinic’s operations
+                    efficiently.
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
             </div>
           </section>
 
@@ -168,63 +217,75 @@ export default function LandingPage() {
                   <h3 className="text-2xl font-semibold mb-6 text-center">
                     Get in Touch
                   </h3>
-                  <form className="space-y-6">
-                    <div>
-                      <label
-                        htmlFor="name"
-                        className="block text-sm font-medium text-gray-700 mb-1"
+                  {!submitted ? (
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                      <div>
+                        <label
+                          htmlFor="name"
+                          className="block text-sm font-medium text-gray-700 mb-1"
+                        >
+                          Your Name
+                        </label>
+                        <Input
+                          type="text"
+                          id="name"
+                          name="name"
+                          placeholder="John Doe"
+                          required
+                          className="w-full rounded-md"
+                        />
+                      </div>
+                      <div>
+                        <label
+                          htmlFor="email"
+                          className="block text-sm font-medium text-gray-700 mb-1"
+                        >
+                          Your Email
+                        </label>
+                        <Input
+                          type="email"
+                          id="email"
+                          name="email"
+                          placeholder="john@example.com"
+                          required
+                          className="w-full rounded-md"
+                        />
+                      </div>
+                      <div>
+                        <label
+                          htmlFor="message"
+                          className="block text-sm font-medium text-gray-700 mb-1"
+                        >
+                          Your Message
+                        </label>
+                        <Textarea
+                          id="message"
+                          name="message"
+                          placeholder="How can we help you?"
+                          required
+                          className="w-full rounded-md"
+                          rows={4}
+                        />
+                      </div>
+                      <Button
+                        type="submit"
+                        className="w-full bg-tangerine text-white hover:bg-pine rounded-md"
                       >
-                        Your Name
-                      </label>
-                      <Input
-                        type="text"
-                        id="name"
-                        name="name"
-                        placeholder="John Doe"
-                        required
-                        className="w-full rounded-md"
-                      />
+                        <Send className="w-4 h-4 mr-2" />
+                        Send Message
+                      </Button>
+                    </form>
+                  ) : (
+                    <div className="flex flex-col items-center space-y-4">
+                      <CheckCircle className="w-10 h-10 text-green-500" />
+                      <h2 className="text-xl font-semibold text-gray-700">
+                        Thank you for your message!
+                      </h2>
+                      <p className="text-gray-600">
+                        We will get back to you as soon as possible.
+                      </p>
                     </div>
-                    <div>
-                      <label
-                        htmlFor="email"
-                        className="block text-sm font-medium text-gray-700 mb-1"
-                      >
-                        Your Email
-                      </label>
-                      <Input
-                        type="email"
-                        id="email"
-                        name="email"
-                        placeholder="john@example.com"
-                        required
-                        className="w-full rounded-md"
-                      />
-                    </div>
-                    <div>
-                      <label
-                        htmlFor="message"
-                        className="block text-sm font-medium text-gray-700 mb-1"
-                      >
-                        Your Message
-                      </label>
-                      <Textarea
-                        id="message"
-                        name="message"
-                        placeholder="How can we help you?"
-                        required
-                        className="w-full rounded-md"
-                        rows={4}
-                      />
-                    </div>
-                    <Button
-                      type="submit"
-                      className="w-full bg-tangerine text-white hover:bg-pine rounded-md"
-                    >
-                      <Send className="w-4 h-4 mr-2" />
-                      Send Message
-                    </Button>
-                  </form>
+                  )}
                 </div>
               </div>
             </div>
