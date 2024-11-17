@@ -106,7 +106,7 @@ export default function BookAppointmentForm() {
         try {
           const formattedDate = format(selectedDate, "yyyy-MM-dd");
           const response = await api.get(
-            `http://127.0.0.1:8000/doctors/${selectedDoctor}/available-slots/${formattedDate}/`
+            `/doctors/${selectedDoctor}/available-slots/${formattedDate}/`
           );
           setAvailableTimes(response.data.available_slots);
         } catch (error) {
