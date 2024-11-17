@@ -23,7 +23,7 @@ api.interceptors.response.use(
       console.warn("Access token expired. Logging out.");
 
       Cookies.remove("medappapi_access_token");
-      window.location.href = "/auth"; // Adjust to your login page route
+      window.location.href = "/auth";
     }
     return Promise.reject(error);
   }
