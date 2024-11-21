@@ -1,36 +1,30 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## MediCal
 
-## Getting Started
+The frontend of MediCal is built using **Next.js** with **TypeScript** for a modern, scalable, and high-performance user interface. It handles user interactions and communicates with the backend through REST API calls to provide a seamless experience for patients, doctors, and administrators.
 
-First, run the development server:
+### **Key Features**
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- **User-Friendly Interface**: Intuitive design for registration, login, appointment booking, and role-specific workflows.
+- **API Integration**: Communicates with the backend using **Axios** to fetch and display data dynamically.
+- **Responsive Design**: Styled with **Tailwind CSS** to ensure a consistent experience across all devices.
+- **Role-Specific Workflows**:
+  - Patients: Register, log in, book/cancel appointments, and interact with the AI chatbot.
+  - Doctors: Manage appointments and add notes.
+  - Admins: Oversee patients, doctors, and appointments through a dynamic dashboard.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### **Technologies Used**
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Framework**: Next.js
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS
+- **API Communication**: Axios
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### **Environment Variables**
 
-## Learn More
+To enable the AI-powered features, you need to configure your **Google Gemini AI key** in the `.env` file:
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Create a `.env.local` file in the `frontend` directory.
+2. Add the following environment variable:
+   ```env
+   NEXT_PUBLIC_GOOGLE_GEN_AI_KEY=<your-gemini-key>
+   ```
