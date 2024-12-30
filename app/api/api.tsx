@@ -2,7 +2,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 
 const api = axios.create({
-  baseURL: "https://gen-lang-client-0627792260.wl.r.appspot.com/",
+  baseURL: "https://medical-server.houseofmubina.com/",
   headers: {
     "Content-Type": "application/json",
   },
