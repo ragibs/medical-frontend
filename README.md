@@ -2,6 +2,8 @@
 
 The frontend of MediCal is built using **Next.js** with **TypeScript** for a modern, scalable, and high-performance user interface. It handles user interactions and communicates with the backend through REST API calls to provide a seamless experience for patients, doctors, and administrators.
 
+> **Note:** This project was developed as part of our MEng program at the University of Calgary.
+
 ### **Key Features**
 
 - **User-Friendly Interface**: Intuitive design for registration, login, appointment booking, and role-specific workflows.
